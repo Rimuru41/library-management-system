@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View fine_history</title>
+</head>
+<body>
+    <h1>fines List</h1>
+    <table>
+        <thead>
+            <tr>
+                
+                <th>Name</th>
+                <th>Books</th>
+                <th>Amount</th>
+                <th>Issued Date</th>
+                <th>Fine Date</th>
+                <th>Payment Date</th>
+                <th>Status</th>
+                <th>Handled by</th>
+   
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for fines in fines_history %}
+            <tr>
+                <td>{{ fines[0] }}</td>
+                <td>{{ fines[1] }}</td>
+                <td>{{ fines[2] }}</td>
+                <td>{{ fines[4] }}</td>
+                <td>{{ fines[5] }}</td>
+                <td>{{ fines[6] }}</td>
+                <td>{{ fines[7] }}</td>
+                <td>{{ fines[8] }}</td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
