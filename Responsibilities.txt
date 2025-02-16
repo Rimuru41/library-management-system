@@ -1,0 +1,29 @@
+1. Staff
+Role: Assists with day-to-day operations in the library.
+Responsibilities:
+    Issuing and returning books.
+    Maintaining records of borrowed and returned books.
+    Organizing and shelving books.
+    Assisting members in finding books or resources.
+    Adding new books or updating book details under supervision.
+2. Admin
+Role: Has overall control and management authority over the system.
+Responsibilities:
+    Adding, updating, and removing books and library resources.
+    Managing staff accounts and permissions.
+    Monitoring system usage and performance.
+    Generating reports (e.g., overdue books, most borrowed books, member activity).
+    Handling membership registrations, upgrades, or cancellations.
+    Enforcing rules and policies, such as late fees or borrowing limits.
+3. Members
+Role: End-users of the library, including students, researchers, or general readers.
+Responsibilities:
+    Searching for and reserving books or resources.
+    Borrowing and returning books within the defined borrowing period.
+    Requesting extensions or renewing books.
+    Viewing their borrowing history or outstanding dues.
+    Giving feedback or suggestions to improve the library system.
+    Summary of Interaction:
+    Admins manage both staff and members, oversee the system, and ensure smooth functioning.
+    Staff interact directly with members to provide library services and assist with technical or operational needs.
+    Members access resources managed by admins and serviced by staff.

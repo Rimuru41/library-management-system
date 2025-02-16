@@ -1,0 +1,16 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "askForPassword": true,
+            "driver": "PostgreSQL",
+            "name": "LMS",
+            "database": "library_management_system",
+            "username": "postgres",
+            "connectionTimeout": 20
+        }
+    ],
+    "livePreview.defaultPreviewPath": "/app/templates/login.html"
+}

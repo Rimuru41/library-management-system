@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View issued_books</title>
+</head>
+<body>
+    <h1>books List</h1>
+    <table>
+        <thead>
+            <tr>
+                
+                <th>Name</th>
+                <th>Books</th>
+                <th>Date</th>
+  
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for books in issued_books %}
+            <tr>
+                <td>{{ books[0] }}</td>
+                <td>{{ books[1] }}</td>
+                <td>{{ books[2] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
