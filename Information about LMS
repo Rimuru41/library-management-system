@@ -1,3 +1,0 @@
-books,books_copies,author,genre,issued books,reservations,fines,member and staff
-with models.py,routes.py,config.py,run.py,__init__.py 
-and psycopg2
