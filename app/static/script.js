@@ -110,6 +110,10 @@ genreButton.addEventListener('click', async () => {
 
 document.getElementById('filter-form').addEventListener('submit', async (event) => {
   event.preventDefault(); // Prevent the form from reloading the page
+  filterModal.style.display = 'none';
+  document.body.style.overflow = 'auto';  // ✅ Ensure scrolling is restored
+  
+  console.log("Filter applied, modal closed, and scrolling restored"); // Debugging log
 
   // Get the filter values
   const genres = [...document.querySelectorAll('input[name="genres"]:checked')].map(input => input.value);

@@ -416,6 +416,35 @@ def register_members(Member_Name,Email,Phone_Number,Address,Join_Date,hashed_pas
     finally:
         conn.close()
 
+def register_staff(Member_Name,Email,Phone_Number,Address,role,Join_Date,hashed_password):
+    print("now in rregister_staff function!!")
+    conn = get_db_connection()
+    if not conn:
+        return 'db_error'
+    print("established connection")
+    try:
+        with conn.cursor() as cur:
+            # Check if the member already exists
+            print("Executing the task in staff!!")
+            cur.execute('SELECT staff_id FROM staff WHERE staff_name = %s and email = %s', (Member_Name, Email))
+            existing_member = cur.fetchone()
+            print("okay query done!!!")
+            if existing_member:
+                return 'already_registered'
+
+            # Insert the new member into the database
+            cur.execute("""
+                    INSERT INTO staff (staff_name,Email,Phone_Number,Address,role,Join_Date,password)
+                    VALUES (%s, %s, %s, %s, %s,%s,%s);
+            """, (Member_Name,Email,Phone_Number,Address,role,Join_Date,hashed_password))
+            conn.commit()
+            return 'success'
+    except Exception as e:
+        print(f"Error registering member: {e}")
+        return e
+    finally:
+        conn.close()
+
 def login_member(Email,password):
 
     conn=get_db_connection
@@ -428,7 +457,7 @@ def login_member(Email,password):
                 user = cur.fetchone()
                 print(f"the content of the user is {user}")
                 if not user:
-                    print("Not")
+                    print("Notxx")
                     return 'Not Registered'
                 hashed_password=bytes.fromhex(user[1].replace('\\x', ''))
                 print(hashed_password)
@@ -437,10 +466,41 @@ def login_member(Email,password):
                    print("Not")
                    return 'Not Registered'
                 print("Not")
-                return 'Success',user[0]             
+                staff=login_staff(Email,password)
+                if not staff:
+                    return 'Success',user[0]
+                return 'Twin',staff[0],staff[1]            
         except Exception as e:
              print(f"Error login: {e}")
              return e
+        finally:
+            conn.close()
+
+def login_staff(Email,password):
+
+    conn=get_db_connection
+    if conn:
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cur:
+            # Fetch the user from the database
+                cur.execute('SELECT staff_name,role, password FROM staff WHERE email ILIKE %s', (Email,))
+                user = cur.fetchone()
+                print(f"the content of the user from staff is {user}")
+                if not user:
+                    print("Not")
+                    return []
+                hashed_password=bytes.fromhex(user[2].replace('\\x', ''))
+                print(hashed_password)
+                # Verify the password
+                if not bcrypt.checkpw(password.encode('utf-8'), hashed_password):
+                   print("Not")
+                   return []
+                print("Not")
+                return user[0],user[1]
+        except Exception as e:
+             print(f"Error login in staff: {e}")
+             return []
         finally:
 
             conn.close()

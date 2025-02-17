@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for,jsonify,flash,session
-from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies
+from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff
 from .config import Config
 import bcrypt
 
@@ -53,6 +53,39 @@ def register():
         
     return render_template('register.html')
 
+
+@main.route('/register_staff',methods=['GET','POST'])
+def register_staffs():
+    print("Okay")
+    if request.method == 'POST':
+        
+        data = request.form
+        Member_Name = request.form.get('Member_Name')
+        Email=request.form.get('Email')
+        Phone_Number=request.form.get('Phone_Number')
+        Address = request.form.get('Address')
+        role=request.form.get('role')
+        Join_Date=request.form.get('join_date')        
+        password = data.get('password')
+
+        if not Member_Name or not Email or not password:
+            flash("'error': 'All fields are required'}")
+
+        # Hash the password
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        result = register_staff(Member_Name,Email,Phone_Number,Address,role,Join_Date,hashed_password)
+        print("now inthe register staff function")
+        if result == 'already_registered':
+            flash('Already Registered!', 'message')        
+        elif result == 'success':
+            return redirect(url_for('main.login'))
+        else:
+            flash(f"'error': 'An error occurred during registration {result}'")
+        
+        
+        
+    return render_template('register_staff.html')
+
 @main.route("/login",methods=['GET','POST'])
 def login():
     if request.method == 'POST':
@@ -61,18 +94,38 @@ def login():
         password = data.get('password')
         result=login_member(Email,password)
         user=result[1]
+        print(f"the resuls after the login function is {result}")
         print(f"The user of result [0[ is {user}")
         if result == 'Not Registered':
             flash('Incorrect Email or Password!', 'error')
         elif result[0] == 'Success':
             session["user_name"]=user
             session["email"]=Email
+            session["role"]='member'
             print(f"The email in the login section is {Email}")
             return redirect(url_for('main.members_dashboard'))
+        elif result[0] == 'Twin':
+            session["user_name"] = user
+            session["email"] = Email
+            return render_template('choose_role.html', role=result[2])
+
         else:
           flash(f"The error Encountered is {result}")
 
     return render_template('login.html')
+
+@main.route('/set_role', methods=['POST'])
+def set_role():
+    data = request.json
+    session["role"] = data["role"]
+    
+    # Redirect based on role
+    if data["role"] == "Member":
+        return jsonify({"redirect": url_for('main.members_dashboard')})
+    elif data["role"] == "Admin":
+        return jsonify({"redirect": url_for('main.admin_dashboard')})
+    else:  # Default for Staff or others
+        return jsonify({"redirect": url_for('main.staff_dashboard')})
 
 # Logout route
 @main.route("/logout")
@@ -186,6 +239,15 @@ def admin_dashboard():
         return redirect(url_for("main.login"))
     
     return render_template("admin_dashboard.html", user_name=session["user_name"])
+
+@main.route('/staff_dashboard')
+def staff_dashboard():
+    print(session)
+    if "user_name" not in session:
+        flash("Please log in first!", "error")
+        return redirect(url_for("main.login"))
+    
+    return render_template("staff_dashboard.html", user_name=session["user_name"])
 
 
 @main.route('/filter_books', methods=['POST'])
