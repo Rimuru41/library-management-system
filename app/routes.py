@@ -3,6 +3,132 @@ from .models import add_book as add_book_to_db,get_all_books ,add_author,add_gen
 from werkzeug.utils import secure_filename
 import os
 import bcrypt
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+
+
+def resize_image(image_path, max_size=(300, 450)):
+    """Resizes the image while maintaining aspect ratio."""
+    with Image.open(image_path) as img:
+        img.thumbnail(max_size)  # Resize while keeping aspect ratio
+        img.save(image_path)  # Overwrite the original file
+        print(f"Image resized to {img.size}")
+
+
+
+# import textwrap
+# from PIL import Image, ImageDraw, ImageFont
+
+# def create_default_cover(book_name, file_path, bg_image_path="app/static/background.jpg"):
+#     """Create a book cover with a textured background and properly formatted text."""
+    
+#     width, height = 300, 450
+#     padding = 20  # Padding for text from edges
+
+#     # Load background image
+#     bg_image = Image.open(bg_image_path).resize((width, height)).convert("RGBA")
+
+#     # Create a semi-transparent overlay for better contrast
+#     overlay = Image.new("RGBA", (width, height), (211, 211, 211, 180))  # Light gray with opacity
+#     img = Image.alpha_composite(bg_image, overlay)  # Blend overlay and background
+
+#     draw = ImageDraw.Draw(img)
+
+#     # Load font
+#     try:
+#         font = ImageFont.truetype("arial.ttf", 30)  # Adjust font size as needed
+#     except IOError:
+#         font = ImageFont.load_default()
+
+#     # Wrap text if it's too long
+#     wrapped_text = textwrap.fill(book_name, width=15)  # Break into lines
+
+#     # Get text size and center it
+#     bbox = draw.multiline_textbbox((0, 0), wrapped_text, font=font)
+#     text_width = bbox[2] - bbox[0]
+#     text_height = bbox[3] - bbox[1]
+
+#     text_x, text_y = (width - text_width) / 2, (height / 3) - (text_height / 2)
+
+#     # Add text shadow for better readability
+#     shadow_offset = 2
+#     draw.multiline_text((text_x + shadow_offset, text_y + shadow_offset), wrapped_text, font=font, fill="gray", align="center")
+    
+#     # Draw main text
+#     draw.multiline_text((text_x, text_y), wrapped_text, font=font, fill="black", align="center")
+
+#     # Save final cover
+#     img = img.convert("RGB")  # Remove alpha for JPEG compatibility
+#     img.save(file_path)
+#     print(f"Generated default cover at {file_path}")
+
+
+from PIL import Image, ImageDraw, ImageFont, ImageOps
+import textwrap
+
+def create_default_cover(book_name, file_path):
+    """Create a visually appealing default cover that handles long titles."""
+    width, height = 300, 450
+    padding = 20  # Space from edges
+
+    # Create a blank image with a gradient background
+    img = Image.new('RGB', (width, height), color='white')
+    draw = ImageDraw.Draw(img)
+
+    # Gradient effect
+    for i in range(height):
+        color = (200 - i // 5, 200 - i // 5, 200 - i // 5)  # Light to dark gray gradient
+        draw.line([(0, i), (width, i)], fill=color)
+
+    # Try to load a nice font
+    try:
+        font = ImageFont.truetype("arial.ttf", 35)
+    except IOError:
+        font = ImageFont.load_default()
+
+    # Wrap text to fit within the cover width
+    max_width = width - (2 * padding)
+    wrapped_text = textwrap.fill(book_name, width=15)  # Adjust width for wrapping
+
+    # Reduce font size if text is too long
+    while True:
+        bbox = draw.multiline_textbbox((0, 0), wrapped_text, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+
+        if text_width <= max_width and text_height <= (height / 3):  # Limit text height to upper third
+            break  # Font size is okay
+
+        # Reduce font size
+        font_size = font.size - 2
+        if font_size < 15:  # Prevent text from getting too small
+            break
+        font = ImageFont.truetype("arial.ttf", font_size) if font.size > 15 else ImageFont.load_default()
+
+    # Center the text
+    text_x = (width - text_width) / 2
+    text_y = (height / 3) - (text_height / 2)
+
+    # Text shadow
+    draw.multiline_text((text_x + 2, text_y + 2), wrapped_text, font=font, fill="gray", align="center")
+
+    # Main text
+    draw.multiline_text((text_x, text_y), wrapped_text, font=font, fill="black", align="center")
+
+    # Add a simple border
+    border_width = 5
+    draw.rectangle([(border_width, border_width), (width - border_width, height - border_width)], outline="black", width=border_width)
+
+    # Save the cover
+    img.save(file_path)
+    print(f"Generated cover at {file_path}")
+
+
+def generate_filename_with_isbn(filename, isbn):
+    """Generate a unique filename by appending ISBN to the original filename."""
+    secure_name = secure_filename(filename)  # Secure the original filename
+    name, ext = secure_name.rsplit('.', 1)  # Split name and extension
+    return f"{name}_{isbn}.{ext}"  # Append ISBN to the name part
 
 main = Blueprint('main', __name__)
 def allowed_file(filename):
@@ -162,6 +288,8 @@ def add_book():
         if file and file.filename != '':
             if allowed_file(file.filename):
                 filename = secure_filename(file.filename)
+                filename = generate_filename_with_isbn(filename, ISBN)  # Append ISBN
+
                 print(f"The file name is {filename}")
                 file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
 
@@ -172,9 +300,22 @@ def add_book():
 
 
                 file.save(file_path)
+                resize_image(file_path)
                 print(f"Saved file as: {filename}")
             else:
                 return "File type not allowed", 400
+        else:
+        # If no file is uploaded, create a default cover with the book name
+            print ("The default cover page")
+            filename = f"{secure_filename(Book_Name)}_{ISBN}_cover.jpg"  # Generate a unique filename
+            print(f"the defauult cover image is {filename}")
+            file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            create_default_cover(Book_Name, file_path)
+
+        # Add logic to save book details with the generated/default cover
+        print(f"Book cover used: {filename}")
+        # Continue with your book saving logic...
+
             
         # Add logic to save the book to the database (placeholder for now)
         print(f"check if the page is printed{Pages}")
@@ -240,10 +381,11 @@ def book_details(book_id):
             "Genre": books[2],
             "Publication_Year": books[3],
             "Pages": books[4],
-
+            "image_filename":books[5],
             "Synopsis": books[6],
             "Copies": books[7]
         }
+        print(f"The image file name is {books[5]}")
         return render_template('individual_books.html',book=book_data)
     else:
         return "Book not found", 404
