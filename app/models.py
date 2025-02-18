@@ -802,3 +802,152 @@ def get_copy_id_from_book_id(book_id):
             return e
         finally:
             conn.close()
+
+def get_copy_id_from_book_id_for_reservation(book_id):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    select C.copy_id from books_copies as C inner join books as B
+                    On C.book_id=B.book_id
+                    where C.status ILIKE 'pending' and B.book_id=%s;
+
+                """,(book_id,))
+                copy_id=cur.fetchall()
+                if copy_id:
+                    print(f"find the copy{copy_id}")
+                    return copy_id
+                return 'Not available'
+
+        except Exception as e:
+            print(f"the error is {e}")
+            return e
+        finally:
+            conn.close()
+
+
+def reserve_book(copies_id,Member_ID):
+    conn=get_db_connection()
+    Copy_ID=copies_id[1]
+    print(f"the copy_id is {Copy_ID} and {copies_id}")
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                print("Inserting in Reservaations")
+                cur.execute("""INSERT INTO Reservations (Copy_ID, Member_ID)
+                VALUES (%s,%s) Returning reservation_id;
+                """,(Copy_ID,Member_ID))
+                conn.commit()
+                reserv_id=cur.fetchone()
+
+                print("The book is reserved!!!!!!!!!!!!!!!!")
+                return reserv_id
+                
+
+        except Exception as e:
+            print(f"Error while reserveing books:{e}")
+            
+        finally:
+            conn.close()
+
+def get_member_id_by_email(email):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("""
+              select member_id from members where email ILIKE %s
+                """,(email,))
+                member_id=cur.fetchone()
+                if member_id:
+                    return member_id
+                else:
+                    return "Error"
+
+        except Exception as e:
+            print(f"Error while getting member id from email {e}")
+            conn.rollback()
+            
+        finally:
+            conn.close()
+
+def check_reserve_by_member_id(member_id,copy_id):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("""
+              select reservation_id from reservations where member_id = %s and copy_id=%s
+                """,(member_id,copy_id))
+                reserve_id=cur.fetchone()
+                if reserve_id:
+                    return reserve_id
+                return "Error"
+
+        except Exception as e:
+            print(f"Error while getting member id from email {e}")
+            conn.rollback()
+            
+        finally:
+            conn.close()
+
+# def delete_reservation_by_id(reserve_id,book_id):
+#     conn=get_db_connection()
+#     if conn:
+#         try:
+#             with conn.cursor() as cur:
+#                 cur.execute("""
+#                     Delete from reservations where reservation_id=%s and copy_id=%s
+#                 """,(reserve_id,book_id))
+#                 conn.commit()
+#                 print(f"Reservation with ID {reserve_id} deleted successfully.")
+
+#         except Exception as e:
+#             print(f"Error while getting member id from email {e}")
+#             conn.rollback()
+            
+#         finally:
+#             conn.close()
+
+
+def delete_reservation_by_id(reserve_id):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    Delete from reservations where reservation_id=%s
+                """,(reserve_id,))
+                conn.commit()
+                print(f"Reservation with ID {reserve_id} deleted successfully.")
+
+        except Exception as e:
+            print(f"Error while getting member id from email {e}")
+            conn.rollback()
+            
+        finally:
+            conn.close()
+
+
+def update_book_copies(copy_id,status):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                print("Executing in books copies table")
+                cur.execute("""
+                    Update books_copies
+                    set status=%s
+                    where copy_id=%s 
+                """,(status,copy_id))
+                conn.commit()
+                print(f"Upadated book copies with ID {copy_id}  successfully.")
+
+        except Exception as e:
+            print(f"Error while getting member id from email {e}")
+            conn.rollback()
+            
+        finally:
+            conn.close()
+

@@ -39,7 +39,7 @@ CREATE TABLE Books_Copies (
 );
 
 -- Table: Members
-CREATE TABLE Members (-
+CREATE TABLE Members (
     Member_ID SERIAL PRIMARY KEY,
     Member_Name VARCHAR(150) NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
@@ -98,6 +98,7 @@ CREATE TABLE Reservations (
     Reservation_Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     Status VARCHAR(50) DEFAULT 'Pending'
 );
+
 
 
 -- Insert genres
@@ -328,7 +329,7 @@ Group by book_id
 select *from books;
 
 ALTER TABLE books 
-    ADD COLUMN IF NOT EXISTS Synopsis VARCHAR(200);
+    ADD COLUMN IF NOT EXISTS image_filename VARCHAR(200);
 
 select *from books_copies;
 
@@ -356,6 +357,13 @@ select *from books;
 select *from reservations;
 --find the availble number for reservations
 --find all the copy id from book_id and then filter out the "issued"
-select B.book_id,C.copy_id from books_copies as C inner join books as B
+select B.book_id,C.copy_id,C.status from books_copies as C inner join books as B
 On C.book_id=B.book_id
-where C.status ILIKE 'pending'
+where C.status ILIKE 'Available' and B.book_id=1
+
+fetch_copy_id=cur.fetchone()
+
+
+
+
+Select *from reservations;

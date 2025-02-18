@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for,jsonify,flash,session,current_app
-from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id
+from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies
 from werkzeug.utils import secure_filename
 import os
 import bcrypt
@@ -351,7 +351,7 @@ def view_books():
     for i, book in enumerate(books):
         copy_id = get_copy_id_from_book_id(book[5])
         if copy_id[0] == 'success':
-            books[i] = book + ('reserve',)  # Modify the book directly in books
+            books[i] = book + ('Reserve',)  # Modify the book directly in books
         else:
             books[i] = book + ('Not Available',)  # Modify the book directly in books
         
@@ -371,6 +371,62 @@ def get_books():
         }
         for book in books
         ])
+@main.route('/reserve',methods=['POST'])
+def reserve_users():
+    data = request.get_json()
+    book_id = data['book_id']
+    action = data['action']
+    print(f"The book id from the resere_users function in routes.py is {action} and {book_id}")
+
+    if "user_name" not in session:
+        flash("Please Log in first!!!","error")
+        return redirect(url_for("main.login"))
+            
+            
+    copy_id = get_copy_id_from_book_id(book_id)
+    result=get_member_id_by_email(session["email"])
+    member_id=result[0]
+    if member_id:
+        new_reserve=reserve_book(copy_id,member_id)
+        print("Came after reserving ")
+        update_book_copies(copy_id[1],'pending')
+        return jsonify({"success": True, "message": "Reservation Made Successfully!", "redirect_url": url_for('main.admin_dashboard')})
+
+
+
+@main.route('/cancel_reserve',methods=['POST'])   
+def cancel_reserve():
+    data = request.get_json()
+    book_id = data['book_id']
+    action = data['action']
+
+    if "user_name" not in session:
+        flash("Please Log in first!!!","error")
+        return redirect(url_for("main.login"))
+        
+    result=get_member_id_by_email(session["email"])
+    print(f"the member id in cancellation reserves is {result[0]}")
+    copy_ids = get_copy_id_from_book_id_for_reservation(book_id)
+    print(f"The copy ids are {copy_ids}")
+    for copy_idw in copy_ids:
+        copy_id=copy_idw
+        print(copy_id)
+        reserve_id=check_reserve_by_member_id(result[0],copy_id)
+        if reserve_id != 'Error':
+            print("found the right reserve_ids")
+            break
+    print(f"The reserve id is {reserve_id} and {copy_id}")
+    reserve_ids=reserve_id[0]
+
+
+    if reserve_ids:
+        print("yeah!!!!!!successfully deleted")
+        delete_reservation_by_id(reserve_ids)
+        print(copy_id)
+        update_book_copies(copy_id,'Available')
+        return jsonify({'status': 'success', 'message': 'Reservation cancelled successfully'})
+
+
 @main.route('/book/<int:book_id>')
 def book_details(book_id):
     print(f"The book id is {book_id}")
@@ -408,12 +464,7 @@ def fines():
     fines_history=get_all_fines_history()
     print(f"the fines is {fines_history}")
     return render_template('all_fines_history.html',fines_history=fines_history)
-# @main.route('/reservation')
-# def reservations():
-#     reservations=get_all_reservations()
-#     print("The reservations are:")
-#     print(reservations)
-#     return render_template('all_reservations.html',reservations=reservations)
+
 @main.route('/Members')
 def view_members():
     members=get_members()

@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Books</title>
     <link rel="stylesheet" href="/static/tables.css"> <!-- Link to external CSS file -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 </head>
 <body>
     <h1 style="text-align: center;">Book List</h1>
@@ -28,13 +31,16 @@
                 <td>{{ book[3] }}</td>
                 <td>{{ book[4] }}</td>
                 <td>
-                    <button onclick="handleReservation(this)">{{book[6]}}</button>
+                    <button class="reserve-btn" data-book-id="{{ book[5] }}" onclick="handleReservation(this)">{{book[6]}}</button>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <script src="/static/reservations.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Your Reservation Handler Script -->
+    <script src="/static/reservations.js"></script> <!-- This should be last -->
 </body>
 </html>
