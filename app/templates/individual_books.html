@@ -4,18 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ book.Book_Name }}</title>
-    <link rel="stylesheet" href="/static/individual_books.css"> <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="/static/individual_books.css">
 </head>
 <body>
-    <div class="container">
-        <h1>{{ book.Book_Name }}</h1>
-        <p><strong>Author:</strong> {{ book.Author_Name }}</p>
-        <p><strong>Genre:</strong> {{ book.Genre }}</p>
-        <p><strong>Publication Year:</strong> {{ book.Publication_Year }}</p>
-        <p><strong>Pages:</strong> {{ book.Pages }}</p>
-        <p><strong>Synopsis:</strong> {{ book.Synopsis }}</p>
-        <p><strong>Copies Available:</strong> {{ book.Copies }}</p>
-        <a href="/" class="back-button">Go Back</a>
-    </div>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="book-detail">
+            <div class="book-cover">
+                <img src="{{ url_for('static', filename='images/books/' ~ book.image_filename) }}" alt="{{ book.title }} Cover">
+            </div>
+            <div class="book-info">
+                <h1>{{ book.Book_Name }}</h1>
+                <p><strong>Author:</strong> {{ book.Author_Name }}</p>
+                <p><strong>Genre:</strong> {{ book.Genre }}</p>
+                <p><strong>Publication Year:</strong> {{ book.Publication_Year }}</p>
+                <p><strong>Pages:</strong> {{ book.Pages }}</p>
+                <p><strong>Total Copies:</strong> {{ book.Copies }}</p>
+                <p><strong>Synopsis:</strong> {{book.Synopsis }}</p>
+                <a href="/" class="back-button">Go Back</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 LMS</p>
+    </footer>
 </body>
 </html>

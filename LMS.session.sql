@@ -39,7 +39,7 @@ CREATE TABLE Books_Copies (
 );
 
 -- Table: Members
-CREATE TABLE Members (
+CREATE TABLE Members (-
     Member_ID SERIAL PRIMARY KEY,
     Member_Name VARCHAR(150) NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
@@ -324,3 +324,26 @@ Where book_id = 2
 Group by book_id
 
 
+
+select *from books;
+
+ALTER TABLE books 
+    ADD COLUMN IF NOT EXISTS Synopsis VARCHAR(200);
+
+select *from books_copies;
+
+
+INSERT INTO Books_Copies (Book_ID, Condition, Status)
+VALUES
+(32, 'New', 'Available')
+
+select *from books;
+
+select *from books_copies;
+                select Count(book_id) from books_copies
+                Where book_id = 32
+                Group by book_id
+
+                INSERT INTO Books_Copies (Book_ID, Condition, Status)
+                    VALUES
+                    (39, 'New', 'Available')

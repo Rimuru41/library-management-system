@@ -27,26 +27,26 @@
             
             <button type="submit" class="login-button">Login</button>
         </form>
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            let messages = JSON.parse('{{ messages|tojson|safe }}');
-            messages.forEach(([category, message]) => {
-                Swal.fire({
-                    title: category.charAt(0).toUpperCase() + category.slice(1),
-                    text: message,
-                    icon: category,  // "success", "error", "warning", "info"
-                    confirmButtonText: "OK"
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                let messages = JSON.parse('{{ messages|tojson|safe }}');
+                messages.forEach(([category, message]) => {
+                    Swal.fire({
+                        title: category.charAt(0).toUpperCase() + category.slice(1),
+                        text: message,
+                        icon: category,  // "success", "error", "warning", "info"
+                        confirmButtonText: "OK"
+                    });
                 });
             });
-        });
-    </script>
-{% endif %}
-{% endwith %}
+        </script>
+    {% endif %}
+    {% endwith %}
 
 
 
-    </div>
 </body>
 </html>

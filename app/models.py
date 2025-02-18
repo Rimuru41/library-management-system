@@ -142,17 +142,19 @@ def create_tables():
         finally:
             conn.close()
 
-def add_book(Book_Name,Author_ID,Genre_ID,Pages,Publication_Year,ISBN,Author_Name):
+def add_book(Book_Name,Author_ID,Genre_ID,Pages,Publication_Year,ISBN,Author_Name,image_filename,Synopsis):
     conn = get_db_connection()
     if conn:
         try:
             with conn.cursor() as cur:
                 cur.execute("""
-                    INSERT INTO books (Book_Name,Author_ID,Genre_ID,Pages,Publication_Year,ISBN)
-                    VALUES (%s, %s, %s ,%s ,%s ,%s);
-                """, (Book_Name,Author_ID,Genre_ID,Pages,Publication_Year,ISBN))
+                    INSERT INTO books (Book_Name,Author_ID,Genre_ID,Pages,Publication_Year,ISBN,image_filename,synopsis)
+                    VALUES (%s, %s, %s ,%s ,%s ,%s,%s,%s) Returning book_id;
+                """, (Book_Name,Author_ID,Genre_ID,Pages,Publication_Year,ISBN,image_filename,Synopsis))
                 conn.commit()
+                books=cur.fetchone()
                 print(f"Book '{Book_Name}' by {Author_Name} added successfully.")
+                return books[0]
         except Exception as e:
             print(f"Error adding book: {e}")
             conn.rollback()
@@ -206,7 +208,7 @@ def get_book_id(book_id):
         try:
             with conn.cursor() as cur:
                 print("okay")
-                cur.execute("SELECT B.Book_Name,A.author_name,G.genre,B.Publication_Year,B.Pages FROM books as B inner join authors as A On B.Author_ID=A.Author_ID inner join Genres as G On G.Genre_ID=B.Genre_ID where B.book_id=%s;",(book_id,))
+                cur.execute("SELECT B.Book_Name,A.author_name,G.genre,B.Publication_Year,B.Pages,B.image_filename,B.synopsis FROM books as B inner join authors as A On B.Author_ID=A.Author_ID inner join Genres as G On G.Genre_ID=B.Genre_ID where B.book_id=%s;",(book_id,))
                 books=cur.fetchone()
                 print(f"The book is{books}")
                 return books
@@ -300,6 +302,7 @@ def add_author(author_name,BirthDate,Email):
                 """, (author_name,BirthDate,Email))
 
                 new_author = cur.fetchone()
+                print(f"The new aauthor is {new_author}")
                 conn.commit()  # Commit the transaction
                 return new_author[0]
                 print(f"Author '{author_name}' added successfully.")
@@ -739,11 +742,11 @@ def count_copies(book_id):
     if conn:
         try:
             with conn.cursor() as cur:
-                cur.execute("""select *from books_copies;
+                cur.execute("""
                 select Count(book_id) from books_copies
                 Where book_id = %s
                 Group by book_id
-                """,(book_id))
+                """,(book_id,))
                 book_copies=cur.fetchone()
                 print(f"Entered to count the copies and found the available number of copies is{book_copies}")
                 return book_copies
@@ -752,4 +755,29 @@ def count_copies(book_id):
             return[]
         finally:
             conn.close()
+
+
+def add_to_copies(book_id):
+    
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("""INSERT INTO Books_Copies (Book_ID, Condition, Status)
+                    VALUES
+                    (%s, 'New', 'Available') Returning copy_id;
+                """,(book_id,))
+                conn.commit()
+                book_copies=cur.fetchone()
+                print(f"Entered to add to copies{book_copies}")
+                if book_copies:
+                    return "success"
+
+        except Exception as e:
+            conn.rollback()
+            print(f"The error is {e}")
+            return e
+        finally:
+            conn.close()
+
 

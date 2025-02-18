@@ -1,10 +1,13 @@
-from flask import Blueprint, render_template, request, redirect, url_for,jsonify,flash,session
-from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff
-from .config import Config
+from flask import Blueprint, render_template, request, redirect, url_for,jsonify,flash,session,current_app
+from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies
+from werkzeug.utils import secure_filename
+import os
 import bcrypt
 
 main = Blueprint('main', __name__)
-
+def allowed_file(filename):
+    # Use the allowed extensions from the app config.
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 @main.route('/initialize-db')
 def initialize_db():
     result=create_tables()
@@ -88,6 +91,7 @@ def register_staffs():
 
 @main.route("/login",methods=['GET','POST'])
 def login():
+    print(session)
     if request.method == 'POST':
         data = request.form
         Email = data.get('Email')
@@ -143,6 +147,7 @@ def add_book():
     if request.method == 'POST':
         print("add books")
         # Retrieve form data
+        file = request.files['file']
         Book_Name = request.form.get('Book_Name')
         Author=request.form.get('Author')
         BirthDate=request.form.get('BirthDate')
@@ -151,6 +156,26 @@ def add_book():
         Pages=request.form.get('Pages')
         Publication_Year=request.form.get('Publication_Year')
         ISBN=request.form.get('ISBN')
+        Description=request.form.get('Synopsis')
+        # Process the file if one was uploaded
+        filename = None
+        if file and file.filename != '':
+            if allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                print(f"The file name is {filename}")
+                file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+
+                print(f"Saving file to: {file_path}")
+                print("Flask is looking for:", os.path.abspath(file_path))
+                
+                print("Current Flask directory:", os.getcwd())
+
+
+                file.save(file_path)
+                print(f"Saved file as: {filename}")
+            else:
+                return "File type not allowed", 400
+            
         # Add logic to save the book to the database (placeholder for now)
         print(f"check if the page is printed{Pages}")
         print(f"The first Email is {Email}")
@@ -165,10 +190,13 @@ def add_book():
             Genre_ID=add_genre(Genre,description="New genre pending to be described")
        
         # add_genre(Genre)
-        add_book_to_db(Book_Name,Author_ID,Genre_ID,Pages,Publication_Year,ISBN,Author)
+        Book_ID=add_book_to_db(Book_Name,Author_ID,Genre_ID,Pages,Publication_Year,ISBN,Author,image_filename=filename,Synopsis=Description)
+        print(f"The book_id for adding the copies is {Book_ID}")
+        copies=add_to_copies(Book_ID)
 
         # print(f"Book added: {Book_Name} by {Author_ID}")
-        return redirect(url_for('main.admin_dashboard'))
+        if copies=="success":
+            return jsonify({"success": True, "message": "Book Added Successfully!", "redirect_url": url_for('main.admin_dashboard')})
     return render_template('add_books.html')
 
 # Route: View Books
@@ -194,8 +222,13 @@ def book_details(book_id):
     print(f"The book id is {book_id}")
     books =get_book_id(book_id)
     copies=count_copies(book_id)
-    print(copies)
-    books=('okay','jane','fantasy','2018-05-10',250,"the very classical journeyy for this",20)
+    books=books+copies
+    print(f"The books woth copies is {books}")
+#     books=('okay','jane','fantasy','2018-05-10',250,"""Le Cirque des Rêves, the Circus of Dreams, arrives without warning, its black-and-white tents appearing mysteriously overnight. Unlike any other circus, it is only open at night and offers breathtaking wonders—ice gardens, cloud mazes, and performers who seem to defy the laws of nature. But behind this mesmerizing spectacle lies a deeper mystery: a competition between two young illusionists, Celia Bowen and Marco Alisdair. Bound since childhood by their mentors to a magical duel, they must push their abilities to unimaginable limits, using the circus as their battleground.
+
+# Unbeknownst to them, this contest is not merely about skill but survival, and neither can walk away. As they weave intricate illusions to outshine one another, they fall deeply in love, complicating the game’s ruthless rules. Meanwhile, the circus’s performers and devoted followers, known as rêveurs, become unknowingly entwined in their fate.
+
+# As tensions rise and the circus’s very existence comes into question, Celia and Marco must find a way to rewrite the game’s rules before everything unravels. Rich with poetic prose, enchanting imagery, and a dreamlike atmosphere, The Night Circus is a spellbinding tale of love, sacrifice, and the power of imagination. Erin Morgenstern crafts an immersive world that captivates readers, drawing them into a story where magic feels real, time is fluid, and dreams hold limitless possibilities. Perfect for fans of whimsical storytelling and intricate world-building, this novel lingers in the mind long after the final page.""",20)
     print(f"Coming from the get_book_id function and the books is {books}")
     if books:
         print("jsonifying")
@@ -207,8 +240,9 @@ def book_details(book_id):
             "Genre": books[2],
             "Publication_Year": books[3],
             "Pages": books[4],
-            "Synopsis": books[5],
-            "Copies": books[6]
+
+            "Synopsis": books[6],
+            "Copies": books[7]
         }
         return render_template('individual_books.html',book=book_data)
     else:

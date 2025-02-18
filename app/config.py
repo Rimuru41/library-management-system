@@ -4,6 +4,9 @@ class Config:
     # General Configuration
     SECRET_KEY = os.environ.get('LIBRARY_SECRET_KEY')  # Default for development
     SESSION_COOKIE_NAME = 'library_session'
+    UPLOAD_FOLDER = os.path.join('app','static', 'images', 'books')
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
     # Database Configuration
     DATABASE_URI = os.environ.get('DATABASE_URI', 'postgresql://username:password@localhost/library_management_system')
