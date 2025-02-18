@@ -1,10 +1,12 @@
 from flask import Blueprint, render_template, request, redirect, url_for,jsonify,flash,session,current_app
-from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies
+from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id
 from werkzeug.utils import secure_filename
 import os
 import bcrypt
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+
+
 
 
 def resize_image(image_path, max_size=(300, 450)):
@@ -345,7 +347,18 @@ def add_book():
 def view_books():
     # Replace this with a database query to fetch books
     books =get_all_books()
+    
+    for i, book in enumerate(books):
+        copy_id = get_copy_id_from_book_id(book[5])
+        if copy_id[0] == 'success':
+            books[i] = book + ('reserve',)  # Modify the book directly in books
+        else:
+            books[i] = book + ('Not Available',)  # Modify the book directly in books
+        
+        print(f"\n{books[i]}\n")
+    print(f"\n\n\n\n\n\n\n\{books}")
     return render_template('view_books.html', books=books)
+
 @main.route('/get_books',methods=['GET'])
 def get_books():
     books =get_all_books()
@@ -354,7 +367,7 @@ def get_books():
             'title': book[0],
             'author': book[1],
             'genre': book[2],
-            'year': book[3].year
+            'year': book[3].year,
         }
         for book in books
         ])
@@ -395,12 +408,12 @@ def fines():
     fines_history=get_all_fines_history()
     print(f"the fines is {fines_history}")
     return render_template('all_fines_history.html',fines_history=fines_history)
-@main.route('/reservation')
-def reservations():
-    reservations=get_all_reservations()
-    print("The reservations are:")
-    print(reservations)
-    return render_template('all_reservations.html',reservations=reservations)
+# @main.route('/reservation')
+# def reservations():
+#     reservations=get_all_reservations()
+#     print("The reservations are:")
+#     print(reservations)
+#     return render_template('all_reservations.html',reservations=reservations)
 @main.route('/Members')
 def view_members():
     members=get_members()

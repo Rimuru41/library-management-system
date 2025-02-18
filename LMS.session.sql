@@ -339,6 +339,7 @@ VALUES
 
 select *from books;
 
+
 select *from books_copies;
                 select Count(book_id) from books_copies
                 Where book_id = 32
@@ -347,3 +348,14 @@ select *from books_copies;
                 INSERT INTO Books_Copies (Book_ID, Condition, Status)
                     VALUES
                     (39, 'New', 'Available')
+
+
+
+select *from books_copies;
+select *from books;
+select *from reservations;
+--find the availble number for reservations
+--find all the copy id from book_id and then filter out the "issued"
+select B.book_id,C.copy_id from books_copies as C inner join books as B
+On C.book_id=B.book_id
+where C.status ILIKE 'pending'

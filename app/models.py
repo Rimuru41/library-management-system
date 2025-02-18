@@ -223,7 +223,7 @@ def get_all_books():
     if conn:
         try:
             with conn.cursor() as cur:
-                cur.execute("SELECT B.Book_Name,A.author_name,G.genre,B.Publication_Year,B.Pages FROM books as B inner join authors as A On B.Author_ID=A.Author_ID inner join Genres as G On G.Genre_ID=B.Genre_ID;")
+                cur.execute("SELECT B.Book_Name,A.author_name,G.genre,B.Publication_Year,B.Pages,B.book_id FROM books as B inner join authors as A On B.Author_ID=A.Author_ID inner join Genres as G On G.Genre_ID=B.Genre_ID;")
                 books = cur.fetchall()
                 return books
         except Exception as e:
@@ -780,4 +780,25 @@ def add_to_copies(book_id):
         finally:
             conn.close()
 
+def get_copy_id_from_book_id(book_id):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    select B.book_id,C.copy_id,C.status from books_copies as C inner join books as B
+                    On C.book_id=B.book_id
+                    where C.status ILIKE 'Available' and B.book_id=%s;
 
+                """,(book_id,))
+                copy_id=cur.fetchone()
+                if copy_id:
+                    print(f"find the copy{copy_id}")
+                    return 'success',copy_id[1]
+                return 'Not available'
+
+        except Exception as e:
+            print(f"the error is {e}")
+            return e
+        finally:
+            conn.close()

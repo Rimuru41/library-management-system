@@ -4,20 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Books</title>
+    <link rel="stylesheet" href="/static/tables.css"> <!-- Link to external CSS file -->
 </head>
 <body>
-    <h1>Book List</h1>
+    <h1 style="text-align: center;">Book List</h1>
     <table>
         <thead>
             <tr>
-                
-                <th>Book_Name</th>
-                <th>Author_ID</th>
-                <th>Genre_ID</th>
-                <th>Publication_Year</th>
-                <th>pages</th>
-   
-                
+                <th>Book Name</th>
+                <th>Author ID</th>
+                <th>Genre ID</th>
+                <th>Publication Year</th>
+                <th>Pages</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -28,9 +27,14 @@
                 <td>{{ book[2] }}</td>
                 <td>{{ book[3] }}</td>
                 <td>{{ book[4] }}</td>
+                <td>
+                    <button onclick="handleReservation(this)">{{book[6]}}</button>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <script src="/static/reservations.js"></script>
 </body>
 </html>
