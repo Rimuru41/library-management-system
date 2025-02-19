@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for,jsonify,flash,session,current_app
-from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies
+from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies,get_member_reservations,get_book_id_from_copy_ids,issue_books,get_staff_id_by_email,update_reservations_for_issued,Update_issued_books
 from werkzeug.utils import secure_filename
 import os
 import bcrypt
@@ -137,6 +137,7 @@ def allowed_file(filename):
     # Use the allowed extensions from the app config.
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 @main.route('/initialize-db')
+
 def initialize_db():
     result=create_tables()
     if result=='success':
@@ -330,6 +331,8 @@ def add_book():
         Genre_ID=check_genre(Genre)
         if Genre_ID==-1:
             print("Adding Genre now")
+            #write a logic here to add the genre descrioptions 
+            
             Genre_ID=add_genre(Genre,description="New genre pending to be described")
        
         # add_genre(Genre)
@@ -342,18 +345,57 @@ def add_book():
             return jsonify({"success": True, "message": "Book Added Successfully!", "redirect_url": url_for('main.admin_dashboard')})
     return render_template('add_books.html')
 
+
+# @main.route('/add_genere',methods=['POST'])
+# def add)genre:
+
+@main.route('/all_members_reservations')
+def all_members_reservations():
+
+    reservations=get_all_reservations()
+    print("The reservations are:")
+    print(reservations)
+    return render_template('all_reservations_for_staff.html',reservations=reservations)
+
+
+
 # Route: View Books
 @main.route('/books')
 def view_books():
     # Replace this with a database query to fetch books
     books =get_all_books()
-    
+    member_ids=get_member_id_by_email(session["email"])
+    member_id=member_ids[0]
+    copy_status=('pending','issued')
+    copy_ids=get_member_reservations(member_id,copy_status)
+    members_with_issued=get_member_reservations(member_id,'issued')
+    book_idss=()
+    book_id_issued=()
+    for compared_copy_id in members_with_issued:
+        compared_book_id=get_book_id_from_copy_ids(compared_copy_id)
+        book_id_issued=book_id_issued+(compared_book_id,)
+
+    for copy_id in copy_ids:
+        book_ids=get_book_id_from_copy_ids(copy_id)
+        book_idss=book_idss+(book_ids,)
+    print(f"The book ids are {book_idss}")
+    print(f"The copy ids are {copy_ids} and the member with 'issued' is {members_with_issued}")
     for i, book in enumerate(books):
-        copy_id = get_copy_id_from_book_id(book[5])
-        if copy_id[0] == 'success':
-            books[i] = book + ('Reserve',)  # Modify the book directly in books
+        if book[5] in book_idss:
+            print(f"Got the book with reservations")
+            print(f"the book_id of book is  {book[5]} being compared with {book_id_issued}")
+            if book[5] in book_id_issued:
+                print("Getinng book with issued ")
+                books[i] = book + ('Issued',)
+            else:
+                books[i] = book + ('Reservation Pending',)
         else:
-            books[i] = book + ('Not Available',)  # Modify the book directly in books
+            copy_id = get_copy_id_from_book_id(book[5])
+            print(f"the copy id  of {book[5]}  is {copy_id}")
+            if copy_id[0] == 'success':
+                books[i] = book + ('Reserve',)  # Modify the book directly in books
+            else:
+                books[i] = book + ('Not Available',)  # Modify the book directly in books
         
         print(f"\n{books[i]}\n")
     print(f"\n\n\n\n\n\n\n\{books}")
@@ -371,26 +413,26 @@ def get_books():
         }
         for book in books
         ])
-@main.route('/reserve',methods=['POST'])
-def reserve_users():
-    data = request.get_json()
-    book_id = data['book_id']
-    action = data['action']
-    print(f"The book id from the resere_users function in routes.py is {action} and {book_id}")
+# @main.route('/reserve',methods=['POST'])
+# def reserve_users():
+#     data = request.get_json()
+#     book_id = data['book_id']
+#     action = data['action']
+#     print(f"The book id from the resere_users function in routes.py is {action} and {book_id}")
 
-    if "user_name" not in session:
-        flash("Please Log in first!!!","error")
-        return redirect(url_for("main.login"))
+#     if "user_name" not in session:
+#         flash("Please Log in first!!!","error")
+#         return redirect(url_for("main.login"))
             
             
-    copy_id = get_copy_id_from_book_id(book_id)
-    result=get_member_id_by_email(session["email"])
-    member_id=result[0]
-    if member_id:
-        new_reserve=reserve_book(copy_id,member_id)
-        print("Came after reserving ")
-        update_book_copies(copy_id[1],'pending')
-        return jsonify({"success": True, "message": "Reservation Made Successfully!", "redirect_url": url_for('main.admin_dashboard')})
+#     copy_id = get_copy_id_from_book_id(book_id)
+#     result=get_member_id_by_email(session["email"])
+#     member_id=result[0]
+#     if member_id:
+#         new_reserve=reserve_book(copy_id,member_id)
+#         print("Came after reserving ")
+#         update_book_copies(copy_id[1],'pending')
+#         return jsonify({"success": True, "message": "Reservation Made Successfully!", "redirect_url": url_for('main.admin_dashboard')})
 
 
 
@@ -406,6 +448,7 @@ def cancel_reserve():
         
     result=get_member_id_by_email(session["email"])
     print(f"the member id in cancellation reserves is {result[0]}")
+    print(f"The book id is {book_id}")
     copy_ids = get_copy_id_from_book_id_for_reservation(book_id)
     print(f"The copy ids are {copy_ids}")
     for copy_idw in copy_ids:
@@ -540,7 +583,7 @@ def get_genre():
 
 @main.route('/members_dashboard')
 def members_dashboard():
-    print(session["email"])
+    print(session)
     if "user_name" not in session:
         flash("Please log in first!", "error")
         return redirect(url_for("main.login"))
@@ -568,3 +611,81 @@ def members_issued_books():
     print(email)
     issued_books=get_issued_books_by_Email(email)
     return render_template('all_issued_books.html',issued_books=issued_books)
+
+
+
+@main.route('/reserve',methods=['POST'])
+def reserve_users():
+    data = request.get_json()
+    book_id = data['book_id']
+    action = data['action']
+    print(f"The book id from the resere_users function in routes.py is {action} and {book_id}")
+
+    if "user_name" not in session:
+        flash("Please Log in first!!!","error")
+        return redirect(url_for("main.login"))
+            
+            
+    copy_id = get_copy_id_from_book_id(book_id)
+    result=get_member_id_by_email(session["email"])
+    member_id=result[0]
+    if member_id:
+        new_reserve=reserve_book(copy_id,member_id)
+        print("Came after reserving ")
+        update_book_copies(copy_id[1],'pending')
+        return jsonify({"success": True, "message": "Reservation Made Successfully!", "redirect_url": url_for('main.admin_dashboard')})
+
+@main.route('/Issue_book',methods=['POST'])
+def Issue_book_by_staff():
+    data = request.get_json()
+    member_id = data['member_id']
+    copy_id=data['copy_id']
+    action = data['action']
+    print(f"The member_id and copy_id from the issued book function in routes.py is {member_id} and {copy_id}")
+    print(session["role"])
+    if "user_name" not in session:
+        flash("Please Log in first!!!","error")
+        return redirect(url_for("main.login"))
+    if session["role"]!='member':
+        staff_id=get_staff_id_by_email(session["email"])
+        print(f"got the staff id which is {staff_id} and now insrting into issued books table")
+        issued_booksss=issue_books(copy_id=copy_id,member_id=member_id,issued_date='2020-01-01',due_date='2020-02-01',status='Issued',handled_by=staff_id)
+        print(f"the issued book is {issued_booksss}")
+        if issued_booksss=='success':
+            reserve_status='issued'
+            update_reservations_for_issued(copy_id,member_id,status=reserve_status)
+            print("updated successfully")
+            update_book_copies(copy_id,'issued')
+
+            return jsonify({"success": True, "message": "Book Issued  Successfully!", "redirect_url": url_for('main.admin_dashboard')})
+        else:
+            return jsonify({"error": True, "message": "Book Not issued Successfully!", "redirect_url": url_for('main.admin_dashboard')})
+
+
+@main.route('/return_issued_book',methods=['POST'])
+def return_issued_book():
+    data = request.get_json()
+    member_id = data['member_id']
+    copy_id=data['copy_id']
+    action = data['action']
+    print(f"The member_id and copy_id from the issued book function in routes.py is {member_id} and {copy_id}")
+    print(session["role"])
+    if "user_name" not in session:
+        flash("Please Log in first!!!","error")
+        return redirect(url_for("main.login"))
+    if session["role"]!='member':
+        staff_id=get_staff_id_by_email(session["email"])
+        print(f"got the staff id which is {staff_id} and now insrting into issued books table")
+        issued_booksss=Update_issued_books(copy_id=copy_id,member_id=member_id,status='Returned')
+        print(f"the issued book is {issued_booksss}")
+        if issued_booksss=='success':
+            reserve_status='Returned'
+            update_reservations_for_issued(copy_id,member_id,status=reserve_status)
+            print("updated successfully")
+            update_book_copies(copy_id,'Available')
+
+            return jsonify({"success": True, "message": "Book Returned  Successfully!", "redirect_url": url_for('main.admin_dashboard')})
+        else:
+            return jsonify({"error": True, "message": "Error whhile returning the book", "redirect_url": url_for('main.admin_dashboard')})
+
+    

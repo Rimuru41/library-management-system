@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View reservations</title>
+    <link rel="stylesheet" href="/static/tables.css"> <!-- Link to external CSS file -->
+
+</head>
+<body>
+    <h1 style="text-align: center;">Reservations List</h1>
+    <table>
+        <thead>
+            <tr>
+                
+                <th>Name</th>
+                <th>Books</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>member id</th>
+                <th>copy_Id</th>
+
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in reservations %}
+            <tr>
+                <td>{{ reservation[0] }}</td>
+                <td>{{ reservation[1] }}</td>
+                <td>{{ reservation[2] }}</td>
+                <td>
+                    <button class="reserve-btn" data-member-id="{{ reservation[4] }}" data-copy-id="{{ reservation[5] }}"" onclick="handleReservation(this)">{{reservation[3]}}</button>
+                </td>
+                <td>{{ reservation[4] }}</td>
+                <td>{{ reservation[5] }}</td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Your Reservation Handler Script -->
+    <script src="/static/staff_reservations_approval.js"></script> <!-- This should be last -->
+</body>
+</html>

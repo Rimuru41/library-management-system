@@ -332,7 +332,10 @@ ALTER TABLE books
     ADD COLUMN IF NOT EXISTS image_filename VARCHAR(200);
 
 select *from books_copies;
+select *from books;
 
+
+delete from books_copies where book_id=NULL
 
 INSERT INTO Books_Copies (Book_ID, Condition, Status)
 VALUES
@@ -351,7 +354,9 @@ select *from books_copies;
                     (39, 'New', 'Available')
 
 
-
+delete from books;
+delete from books_copies;
+delete from reservations;
 select *from books_copies;
 select *from books;
 select *from reservations;
@@ -366,4 +371,39 @@ fetch_copy_id=cur.fetchone()
 
 
 
-Select *from reservations;
+Select *from issued
+
+-- Insert issued books
+
+INSERT INTO Issued (Copy_ID, Member_ID, Issued_Date, Due_Date, Status, Staff_ID)
+VALUES  
+(17, 1, '2023-02-15', '2023-02-25', 'Issued', 1),
+(3, 3, '2023-03-01', '2023-03-11', 'Issued', 1);
+
+delete from issued;
+delete from reservations;
+select *from books_copies;
+select *from books;
+select *from reservations;
+
+INSERT INTO Issued (Copy_ID, Member_ID, Issued_Date, Due_Date, Status, Staff_ID)
+                    VALUES 
+                    (%s, %s, %s, %s, %s, %s,%s)
+
+
+update books_copies
+set status='Available'
+where status ILIKE 'issued'
+
+select *from books_copies
+where UPPER(status) in ('AVAILABLE','ISSUED')
+
+
+delete from reservations;
+delete from issued;
+
+INSERT INTO Books_Copies (Book_ID, Condition, Status)
+VALUES
+(16, 'New', 'Available')
+
+select *from issued

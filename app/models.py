@@ -143,6 +143,7 @@ def create_tables():
             conn.close()
 
 def add_book(Book_Name,Author_ID,Genre_ID,Pages,Publication_Year,ISBN,Author_Name,image_filename,Synopsis):
+    print(f"the book name is {Book_Name}")
     conn = get_db_connection()
     if conn:
         try:
@@ -527,6 +528,31 @@ def get_members_name_by_email(email):
 
         finally:
             conn.close()
+
+
+
+def get_staff_id_by_email(email):
+    query = "SELECT staff_id FROM staff WHERE Email ILIKE %s;"
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                print("start")
+                cur.execute(query, (email,))  # Execute query with email as parameter
+                result = cur.fetchone()  # Fetch one row
+                print(f"The member by email{result}")
+                if result:
+                    print(result[0])
+                    return result[0] # Assuming result[0] is Member_Name
+                return None  # User not found
+        except Exception as e:
+            print(f"Error Fetching the members:{e}")
+            return []
+
+        finally:
+            conn.close()
+
+
 def get_members():
 
     conn=get_db_connection()
@@ -595,7 +621,7 @@ def get_all_reservations():
             print("Getting reservations")
             with conn.cursor() as cur:
                 cur.execute("""        
-                    Select members.member_name,books.book_name,reservations.reservation_date,reservations.status 
+                    Select members.member_name,books.book_name,reservations.reservation_date,reservations.status,members.member_id,books_copies.copy_id 
                     from reservations
                     inner join members On reservations.member_id=members.member_id
                     inner join books_copies On reservations.copy_id=books_copies.copy_id
@@ -611,6 +637,59 @@ def get_all_reservations():
             return[]
         finally:
             conn.close()
+
+
+
+
+def get_member_reservations(member_id,status):
+    conn=get_db_connection()
+    if conn:
+        
+        try:
+            print("Getting reservations")
+            with conn.cursor() as cur:
+                if len(status)==2:
+                    cur.execute("""        
+                        Select copy_id from reservations where member_id=%s and lower(status) IN %s
+                    """,(member_id,status))
+                    reservations=cur.fetchall()
+                    print(f"The copy id of memerPid {member_id} with {status} is {reservations}")
+                    print(reservations)
+                    return reservations
+                else:
+                    cur.execute("""        
+                        Select copy_id from reservations where member_id=%s and status ILIKE %s
+                    """,(member_id,status))
+                    reservations=cur.fetchall()
+                    print(f"The copy_id fetched with {status} of {member_id} is {reservations}")
+                    print(reservations)
+                    return reservations
+
+
+        except Exception as e:
+            print(f"The error is {e}")
+            return[]
+        finally:
+            conn.close()
+
+def get_book_id_from_copy_ids(copy_id):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("""
+                Select book_id from books_copies where copy_id=%s
+                """,(copy_id,))
+                book_id=cur.fetchone()
+                if book_id:
+                    return book_id[0]
+        except Exception as e:
+            print("SOMETHING IS WRONG IN GETTING BOOK ID FROM COPY ID ")
+        finally:
+            conn.close()
+
+            
+
 
 def get_all_fines_history():
     conn=get_db_connection()
@@ -951,3 +1030,74 @@ def update_book_copies(copy_id,status):
         finally:
             conn.close()
 
+
+
+def update_reservations_for_issued(copy_id,member_id,status):
+    conn=get_db_connection()
+    print(f"The update resrvation parameters are {copy_id},{member_id},{status}")
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                print("Executing in books copies table")
+                cur.execute("""
+                    Update reservations
+                    set status=%s
+                    where copy_id=%s and member_id=%s
+                """,(status,copy_id,member_id))
+                conn.commit()
+                print(f"Upadated resrvatsions with ID {copy_id}  successfully.")
+
+        except Exception as e:
+            print(f"Error while getting member id from email {e}")
+            conn.rollback()
+            
+        finally:
+            conn.close()
+
+            
+def issue_books(copy_id,member_id,issued_date,due_date,status,handled_by):
+    print(copy_id,member_id,issued_date,due_date,status,handled_by)
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("""INSERT INTO Issued (Copy_ID, Member_ID, Issued_Date, Due_Date, Status, Staff_ID)
+                    VALUES 
+                    (%s, %s, %s, %s, %s, %s) Returning issued_id;
+                """,(copy_id,member_id,issued_date,due_date,status,handled_by))
+                conn.commit()
+                issuedbook=cur.fetchone()
+                print("okay inserted done!!!!!")
+                if issuedbook:
+                    return "success"
+                else:
+                    return "failure"
+
+        except Exception as e:
+            conn.rollback()
+            print(f"The error is {e}")
+            return e
+        finally:
+            conn.close()
+
+def Update_issued_books(copy_id,member_id,status):
+    conn=get_db_connection()
+    print(f"The update issued books are {copy_id},{status}")
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                print("Executing in uupdated issued book  table")
+                cur.execute("""
+                    Update issued
+                    set status=%s
+                    where copy_id=%s and member_id=%s
+                """,(status,copy_id,member_id))
+                conn.commit()
+                print(f"Upadated issued books with ID {copy_id}  successfully.")
+                return 'success'
+        except Exception as e:
+            print(f"Error while getting member id from email {e}")
+            conn.rollback()
+            
+        finally:
+            conn.close()

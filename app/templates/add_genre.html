@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Book</title>
+    <link rel="stylesheet" href="/static/add_book.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+   
+</head>
+<body>
+    <div class="form-container">
+        <h1>Add a New Book</h1>
+
+            <div class="form-group">
+                <label for="Description">Synopsis</label>
+                <input type="text" id="Synopsis" name="Synopsis" required>
+            </div>
+
+
+            <button type="submit">Add Genere</button>
+        </form>
+    </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("bookForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent form submission
+            
+            let formData = new FormData(this);
+    
+            fetch("{{ url_for('main.add_book') }}", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: "Success",
+                        text: data.message,
+                        icon: "success",
+                        confirmButtonText: "OK"
+                    }).then(() => {
+                        window.location.href = data.redirect_url; // Redirect after alert
+                    });
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    });
+    </script>
+    
+</body>
+</html>
