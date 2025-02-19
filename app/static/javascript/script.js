@@ -21,6 +21,7 @@
     window.addEventListener('click', (event) => {
       if (event.target === filterModal) {
         filterModal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling when modal closes
       }
     });
   // Get the elements
@@ -156,6 +157,7 @@ document.getElementById('filter-form').addEventListener('submit', async (event) 
         <p><strong>Author:</strong> ${book.author}</p>
         <p><strong>Genre:</strong> ${book.genre}</p>
         <p><strong>Year:</strong> ${book.year}</p>
+
       `;
       bookFeed.appendChild(bookCard);
     });
@@ -186,6 +188,11 @@ async function fetchAllBooks() {
         <p><strong>Genre:</strong> ${book.genre}</p>
         <p><strong>Year:</strong> ${book.year}</p>
       `;
+      // Add a click event listener to redirect to the book page
+      bookCard.addEventListener('click', () => {
+        window.location.href = `/book/${book.book_id}`; // Redirect to book page
+      });
+
       bookFeed.appendChild(bookCard);
     });
   } catch (error) {
@@ -228,7 +235,7 @@ document.getElementById("search-bar").addEventListener("input", function() {
 
   books.forEach(function(book) {
       let title = book.querySelector("h3").textContent.toLowerCase();
-      let author = book.querySelector("p strong").nextSibling.textContent.toLowerCase();
+      let author = book.querySelector("p:nth-of-type(1)").textContent.toLowerCase().replace("author: ", "");
       let genre = book.querySelector("p:nth-of-type(2)").textContent.toLowerCase().replace("genre: ", ""); 
       let year = book.querySelector("p:nth-of-type(3)").textContent.toLowerCase().replace("year: ", ""); 
 

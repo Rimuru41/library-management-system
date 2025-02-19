@@ -4,20 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Books</title>
-    <link rel="stylesheet" href="/static/tables.css"> <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="/static/CSS/tables.css"> <!-- Link to external CSS file -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 </head>
 <body>
     <h1 style="text-align: center;">Book List</h1>
-    <table>
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search Books..." onkeyup="filterTable()">
+    </div>
+    <table id="dataTable"
         <thead>
             <tr>
                 <th>Book Name</th>
-                <th>Author ID</th>
-                <th>Genre ID</th>
-                <th>Publication Year</th>
+                <th>Author</th>
+                <th>Genre</th>
+                <th>Publication Date</th>
                 <th>Pages</th>
                 <th>Action</th>
             </tr>
@@ -41,6 +45,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Your Reservation Handler Script -->
-    <script src="/static/reservations.js"></script> <!-- This should be last -->
+    <script src="/static/javascript/reservations.js"></script> <!-- This should be last -->
+    <script src="/static/javascript/search.js"></script>
+
 </body>
 </html>

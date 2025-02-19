@@ -78,7 +78,19 @@ button {
   margin-top: 20px;
 }
 
+.book-link {
+  color: inherit; /* Keeps the text color of the card as it is */
+  text-decoration: none; /* Removes underline */
+  display: block; /* Makes the entire card clickable */
+}
+
+.book-card:hover {
+  background-color: #f0f0f0; /* Changes background color when hovering */
+}
+
 .book-card {
+  transition: background-color 0.3s; /* Optional for smooth background hover */
+  cursor: pointer; /* Makes the card act like a clickable link */
   padding: 10px;
   background-color: #fff;
   border: 1px solid #ddd;

@@ -139,6 +139,7 @@ def allowed_file(filename):
 @main.route('/initialize-db')
 
 def initialize_db():
+    
     result=create_tables()
     if result=='success':
         return jsonify({'error':'Database Successfully Created!'}), 201
@@ -342,7 +343,10 @@ def add_book():
 
         # print(f"Book added: {Book_Name} by {Author_ID}")
         if copies=="success":
-            return jsonify({"success": True, "message": "Book Added Successfully!", "redirect_url": url_for('main.admin_dashboard')})
+            if session["role"]=='admin':
+                return jsonify({"success": True, "message": "Book Added Successfully!", "redirect_url": url_for('main.admin_dashboard')})
+            else:
+                return jsonify({"success": True, "message": "Book Added Successfully!", "redirect_url": url_for('main.staff_dashboard')})
     return render_template('add_books.html')
 
 
@@ -410,6 +414,8 @@ def get_books():
             'author': book[1],
             'genre': book[2],
             'year': book[3].year,
+            'pages':book[4],
+            'book_id':book[5]
         }
         for book in books
         ])
@@ -472,6 +478,9 @@ def cancel_reserve():
 
 @main.route('/book/<int:book_id>')
 def book_details(book_id):
+    if "user_name" not in session:
+        flash("Please log in first!", "error")
+        return redirect(url_for("main.login"))
     print(f"The book id is {book_id}")
     books =get_book_id(book_id)
     copies=count_copies(book_id)
@@ -496,9 +505,10 @@ def book_details(book_id):
             "image_filename":books[5],
             "Synopsis": books[6],
             "Copies": books[7]
+
         }
-        print(f"The image file name is {books[5]}")
-        return render_template('individual_books.html',book=book_data)
+        print(f"The image file name is {books[5]} and the role id is {session["role"]}")
+        return render_template('individual_books.html',book=book_data,role=session["role"])
     else:
         return "Book not found", 404
     

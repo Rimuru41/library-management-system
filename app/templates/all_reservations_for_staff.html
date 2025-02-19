@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View reservations</title>
-    <link rel="stylesheet" href="/static/tables.css"> <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="/static/CSS/tables.css"> <!-- Link to external CSS file -->
 
 </head>
 <body>
     <h1 style="text-align: center;">Reservations List</h1>
-    <table>
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search Reservations..." onkeyup="filterTable()">
+    </div>
+    <table id="dataTable"
         <thead>
             <tr>
                 
@@ -42,6 +46,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Your Reservation Handler Script -->
-    <script src="/static/staff_reservations_approval.js"></script> <!-- This should be last -->
+    <script src="/static/javascript/staff_reservations_approval.js"></script> <!-- This should be last -->
+    <script src="/static/javascript/search.js"></script>
 </body>
 </html>

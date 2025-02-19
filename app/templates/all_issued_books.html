@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View issued_books</title>
-    <link rel="stylesheet" href="/static/tables.css"> <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="/static/CSS/tables.css"> <!-- Link to external CSS file -->
 
 </head>
 <body>
     <h1 style="text-align: center;">Issued Books List</h1>
-    <table>
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search Issued Books..." onkeyup="filterTable()">
+    </div>
+    <table id="dataTable"
         <thead>
             <tr>
                 
@@ -30,5 +34,7 @@
             {% endfor %}
         </tbody>
     </table>
+    <script src="/static/javascript/search.js"></script>
+
 </body>
 </html>
