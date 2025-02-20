@@ -8,7 +8,7 @@
 
 </head>
 <body>
-    <h1 style="text-align: center;">Members List</h1>
+    <h1 style="text-align: center;">Genres List</h1>
     <!-- Search Bar -->
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="Search Members..." onkeyup="filterTable()">
@@ -16,12 +16,10 @@
     <table id="dataTable"
         <thead>
             <tr>
-                <th>Member ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone Number</th>
-                <th>Address</th>
-                <th>Join Date</th>
+                
+                <th>Genre_ID</th>
+                <th>Genre</th>
+                <th>Description</th>
                 <th>Action</th>
    
                 
@@ -30,14 +28,12 @@
         <tbody>
             {% for book in books %}
             <tr>
-                <td>{{ book[5] }}</td>
                 <td>{{ book[0] }}</td>
                 <td>{{ book[1] }}</td>
                 <td>{{ book[2] }}</td>
-                <td>{{ book[3] }}</td>
-                <td>{{ book[4] }}</td>
+
                 <td>
-                    <button class="edit-btn" data-member-id="{{ book[5] }}" onclick="handleEdit(this)">Edit</button>
+                    <button class="edit-btn" data-genre-id="{{ book[0] }}" onclick="handleEdit(this)">Edit</button>
 
                 </td>
             </tr>

@@ -8,15 +8,16 @@
 
 </head>
 <body>
-    <h1 style="text-align: center;">Members List</h1>
+    <h1 style="text-align: center;">Staffs List</h1>
     <!-- Search Bar -->
     <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Search Members..." onkeyup="filterTable()">
+        <input type="text" id="searchInput" placeholder="Search Staffs..." onkeyup="filterTable()">
     </div>
     <table id="dataTable"
         <thead>
             <tr>
-                <th>Member ID</th>
+                <th>Staff ID</th>
+
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone Number</th>
@@ -37,7 +38,7 @@
                 <td>{{ book[3] }}</td>
                 <td>{{ book[4] }}</td>
                 <td>
-                    <button class="edit-btn" data-member-id="{{ book[5] }}" onclick="handleEdit(this)">Edit</button>
+                    <button class="edit-btn" data-staff-id="{{ book[5] }}" onclick="handleEdit(this)">Edit</button>
 
                 </td>
             </tr>

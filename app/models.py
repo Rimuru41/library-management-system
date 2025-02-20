@@ -233,6 +233,39 @@ def get_all_books():
         finally:
             conn.close()
 
+def get_all_genres():
+    conn = get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT genre_id,genre,description from genres;")
+                books = cur.fetchall()
+                if books:
+                    return books
+        except Exception as e:
+            print(f"Error fetching books: {e}")
+            return []
+        finally:
+            conn.close()
+
+
+def get_all_authors():
+    conn = get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT author_id,author_name,birthdate,email from authors;")
+                books = cur.fetchall()
+                if books:
+                    return books
+        except Exception as e:
+            print(f"Error fetching authors: {e}")
+            return []
+        finally:
+            conn.close()
+
+
+
 def check_genre(genre_name):
     conn = get_db_connection()
     if conn:
@@ -255,6 +288,10 @@ def check_genre(genre_name):
             conn.rollback()
         finally:
             conn.close()
+
+
+
+
 
 def fetch_genres():
     conn = get_db_connection()
@@ -560,7 +597,7 @@ def get_members():
         try:
             print("GETting mEMBERS")
             with conn.cursor() as cur:
-                cur.execute("Select Member_Name,Email,Phone_Number,Address,Join_Date From Members;")
+                cur.execute("Select Member_Name,Email,Phone_Number,Address,Join_Date,member_id From Members;")
                 members= cur.fetchall()
                 print(members)
                 return members
@@ -573,6 +610,44 @@ def get_members():
         finally:
             conn.close()
 
+def get_staffs():
+
+    conn=get_db_connection()
+    if conn:
+        try:
+            print("GETting mEMBERS")
+            with conn.cursor() as cur:
+                cur.execute("Select staff_name,Email,Phone_Number,Address,Join_Date,staff_id,role From staff;")
+                members= cur.fetchall()
+                print(members)
+                return members
+            
+
+        except Exception as e:
+            print(f"Error Fetching the members:{e}")
+            return []
+
+        finally:
+            conn.close()
+
+def get_all_books_copies():
+    conn=get_db_connection()
+    if conn:
+        try:
+            print("GETting books_copies")
+            with conn.cursor() as cur:
+                cur.execute("Select C.copy_id,B.book_name,C.condition,C.status From books_copies as C inner join Books as B ON B.book_id=C.book_id;")
+                members= cur.fetchall()
+                print(members)
+                return members
+            
+
+        except Exception as e:
+            print(f"Error Fetching the members:{e}")
+            return []
+
+        finally:
+            conn.close()
 
 
 

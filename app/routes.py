@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for,jsonify,flash,session,current_app
-from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies,get_member_reservations,get_book_id_from_copy_ids,issue_books,get_staff_id_by_email,update_reservations_for_issued,Update_issued_books,add_book_copy
+from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies,get_member_reservations,get_book_id_from_copy_ids,issue_books,get_staff_id_by_email,update_reservations_for_issued,Update_issued_books,add_book_copy,get_staffs,get_all_books_copies,get_all_genres,get_all_authors
 import os 
 import bcrypt
 from .images import generate_filename_with_isbn,create_default_cover,resize_image
@@ -399,6 +399,12 @@ def view_members():
     print(members)
     return render_template('view_members.html',books=members)
 
+@main.route('/Staffs')
+def view_staffs():
+    members=get_staffs()
+    print(members)
+    return render_template('view_staff.html',books=members)
+
 @main.route('/admin_dashboard')
 def admin_dashboard():
     print(session)
@@ -585,9 +591,42 @@ def add_books_copies():
         condition = data.get("condition")
 
         # Add book copy to the database
-        success = add_book_copy(book_id, status, condition)
+        success = add_book_copy(book_id, condition, status)
 
         return jsonify({"success": success})
 
     books = get_all_books()
     return render_template('add_books_copies.html', books=books)
+
+@main.route('/view_books')
+def view_books_latter():
+    # Replace this with a database query to fetch books
+    books =get_all_books()
+    return render_template('view_books_latter.html', books=books)
+
+
+@main.route('/view_books_copies')
+def view_books_copies():
+    # Replace this with a database query to fetch books
+    books =get_all_books_copies()
+    return render_template('view_books_copies.html', books=books)
+
+@main.route('/view_genres')
+def view_genres():
+    # Replace this with a database query to fetch books
+    genres =get_all_genres()
+    return render_template('view_genres.html', books=genres)
+
+@main.route('/view_authors')
+def view_authors():
+    # Replace this with a database query to fetch books
+    authors =get_all_authors()
+    return render_template('view_authors.html', books=authors)
+
+
+@main.route('/Views')
+def Views():
+    if "user_name" not in session:
+        flash("please log in first!!","error")
+        return redirect(url_for('main.login'))
+    return render_template('views.html')
