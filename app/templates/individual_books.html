@@ -28,11 +28,14 @@
                 <p><strong>Total Copies:</strong> {{ book.Copies }}</p>
                 <p><strong>Synopsis:</strong> {{book.Synopsis }}</p>
                 
-
-                <a href="/""
-
-                    class="back-button">Go Back</a>
-                   </div>
+                <a href="{% if role|lower == 'member' %}/members_dashboard
+                        {% elif role|lower== 'staff' %}/staff_dashboard
+                        {% elif role|lower == 'admin' %}/admin_dashboard
+                        {% else %}/
+                        {% endif %}" class="back-button">
+                    Go Back
+                </a>
+            </div>
         </div>
     </main>
     <footer>

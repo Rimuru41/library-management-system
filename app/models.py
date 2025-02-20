@@ -1032,7 +1032,7 @@ def update_book_copies(copy_id,status):
 
 
 
-def update_reservations_for_issued(copy_id,member_id,status):
+def update_reservations_for_issued(copy_id,member_id,status,status_check):
     conn=get_db_connection()
     print(f"The update resrvation parameters are {copy_id},{member_id},{status}")
     if conn:
@@ -1042,8 +1042,8 @@ def update_reservations_for_issued(copy_id,member_id,status):
                 cur.execute("""
                     Update reservations
                     set status=%s
-                    where copy_id=%s and member_id=%s
-                """,(status,copy_id,member_id))
+                    where copy_id=%s and member_id=%s and status ILIKE %s
+                """,(status,copy_id,member_id,status_check))
                 conn.commit()
                 print(f"Upadated resrvatsions with ID {copy_id}  successfully.")
 
@@ -1099,5 +1099,28 @@ def Update_issued_books(copy_id,member_id,status):
             print(f"Error while getting member id from email {e}")
             conn.rollback()
             
+        finally:
+            conn.close()
+
+
+def add_book_copy(book_id, status, condition):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("""
+                Insert into books_copies(book_id,condition,status)
+                values(%s,%s,%s) Returning copy_id;
+                """,(book_id,status,condition))
+                conn.commit()
+                book_copy=cur.fetchone()
+                if book_copy:
+                    return 'success'
+                else:
+                    return 'failure'
+
+        except Exception as e:
+            conn.rollback()
+            print(f"The error while adding book copy is :{e}")
         finally:
             conn.close()

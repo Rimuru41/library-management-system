@@ -324,12 +324,16 @@ Where book_id = 2
 
 Group by book_id
 
+ALTER TABLE books ALTER COLUMN synopsis TYPE VARCHAR(500);
+
+
+select *from reservations;
 
 
 select *from books;
 
 ALTER TABLE books 
-    ADD COLUMN IF NOT EXISTS image_filename VARCHAR(200);
+    ADD COLUMN IF NOT EXISTS Synopsis VARCHAR(200);
 
 select *from books_copies;
 select *from books;
@@ -393,10 +397,14 @@ INSERT INTO Issued (Copy_ID, Member_ID, Issued_Date, Due_Date, Status, Staff_ID)
 
 update books_copies
 set status='Available'
-where status ILIKE 'issued'
+where status ILIKE 'issued';
+
+update books_copies
+set status='Available'
+where status ILIKE 'pending'
 
 select *from books_copies
-where UPPER(status) in ('AVAILABLE','ISSUED')
+where UPPER(status) in ('AVAILABLE')
 
 
 delete from reservations;
