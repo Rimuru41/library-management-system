@@ -16,28 +16,34 @@
     </header>
     <main>
         <div class="book-detail">
-            <div class="book-cover">
-                <img src="{{ url_for('static', filename='images/books/' ~ book.image_filename) }}" alt="{{ book.title }} Cover">
+            <div class="book-upper">
+                <div class="book-cover">
+                    <img src="{{ url_for('static', filename='images/books/' ~ book.image_filename) }}" alt="{{ book.title }} Cover">
+                </div>
+                <div class="book-info">
+                    <h1>{{ book.Book_Name }}</h1>
+                    <p><strong>Author:</strong> {{ book.Author_Name }}</p>
+                    <p><strong>Genre:</strong> {{ book.Genre }}</p>
+                    <p><strong>Publication Year:</strong> {{ book.Publication_Year }}</p>
+                    <p><strong>Pages:</strong> {{ book.Pages }}</p>
+                    <p><strong>Total Copies:</strong> {{ book.Copies }}</p>
+                </div>
             </div>
-            <div class="book-info">
-                <h1>{{ book.Book_Name }}</h1>
-                <p><strong>Author:</strong> {{ book.Author_Name }}</p>
-                <p><strong>Genre:</strong> {{ book.Genre }}</p>
-                <p><strong>Publication Year:</strong> {{ book.Publication_Year }}</p>
-                <p><strong>Pages:</strong> {{ book.Pages }}</p>
-                <p><strong>Total Copies:</strong> {{ book.Copies }}</p>
-                <p><strong>Synopsis:</strong> {{book.Synopsis }}</p>
-                
-                <a href="{% if role|lower == 'member' %}/members_dashboard
-                        {% elif role|lower== 'staff' %}/staff_dashboard
-                        {% elif role|lower == 'admin' %}/admin_dashboard
-                        {% else %}/
-                        {% endif %}" class="back-button">
-                    Go Back
-                </a>
+    
+            <div class="book-synopsis">
+                <p><strong>Synopsis:</strong> {{ book.Synopsis }}</p>
             </div>
+    
+            <a href="{% if role|lower == 'member' %}/members_dashboard
+                      {% elif role|lower== 'staff' %}/staff_dashboard
+                      {% elif role|lower == 'admin' %}/admin_dashboard
+                      {% else %}/
+                      {% endif %}" class="back-button">
+                Go Back
+            </a>
         </div>
     </main>
+    
     <footer>
         <p>Debug: Role is {{ role }}</p>
 

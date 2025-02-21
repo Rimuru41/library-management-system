@@ -365,6 +365,7 @@ def book_details(book_id):
         return redirect(url_for("main.login"))
     print(f"The book id is {book_id}")
     books =get_book_id(book_id)
+    
     copies=count_copies(book_id)
     books=books+copies
     print(f"The books woth copies is {books}")
@@ -382,7 +383,7 @@ def book_details(book_id):
             "Book_Name": books[0],
             "Author_Name": books[1],
             "Genre": books[2],
-            "Publication_Year": books[3],
+            "Publication_Year": books[3].year,
             "Pages": books[4],
             "image_filename":books[5],
             "Synopsis": books[6],

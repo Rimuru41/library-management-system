@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 from werkzeug.utils import secure_filename
 
-def resize_image(image_path, max_size=(300, 450)):
+def resize_image(image_path, max_size=(600, 500)):
     """Resizes the image while maintaining aspect ratio."""
     with Image.open(image_path) as img:
         img.thumbnail(max_size) 
