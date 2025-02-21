@@ -1,6 +1,7 @@
 import psycopg2
 from psycopg2 import sql
 import bcrypt
+import re
 
 
 # Database connection details
@@ -1223,28 +1224,83 @@ def edits_table(table,id):
             conn.close()
 
 
-def get_columns_from_table(table):
-    conn=get_db_connection()
+def get_columns_from_table(table, primary_key):
+    """
+    Retrieves CHECK constraints and all column names except the primary key for a given table.
+    
+    Parameters:
+      table (str): The table name.
+      primary_key (str): The primary key column name.
+
+    Returns:
+      dict: A dictionary with:
+          - 'check_constraints': {column_name: [valid_values]}  (CHECK constraints)
+          - 'columns': [list of all column names except primary key]
+    """
+    conn = get_db_connection()
     if conn:
         try:
             with conn.cursor() as cur:
-                if table =='genres':
-                    return ('Description',)
-                elif table =='books_copies':
-                    return ('Condition',)
-                cur.execute("""SELECT column_name FROM information_schema.columns 
+                # Query for all columns except the primary key
+                cur.execute("""
+                    SELECT column_name FROM information_schema.columns 
                     WHERE table_name = %s AND ordinal_position > 1;
-                """,(table,))
-                columns=cur.fetchall()
-                columns_tuple=tuple(item[0] for item in columns)
+                """, (table,))
+                columns = [row[0] for row in cur.fetchall()]
 
-                if columns:
-                    print(f"the columns from the {table} are {columns_tuple}")
-                    return columns_tuple
+                # Query for CHECK constraints
+                cur.execute("""
+                    SELECT kcu.column_name, cc.check_clause
+                    FROM information_schema.table_constraints tc
+                    JOIN information_schema.constraint_column_usage kcu 
+                        ON tc.constraint_name = kcu.constraint_name
+                    JOIN information_schema.check_constraints cc
+                        ON tc.constraint_name = cc.constraint_name
+                    WHERE tc.table_name = %s AND tc.constraint_type = 'CHECK';
+                """, (table,))
+                check_constraints = {}
+                
+                for column_name, check_clause in cur.fetchall():
+                    # Extract valid values using regex
+                    matches = re.findall(r"'([^']*)'", check_clause)
+                    if matches:
+                        check_constraints[column_name] = matches
+                
+                result = {
+                    'check_constraints': check_constraints,
+                    'columns': columns
+                }
+
+                print(f"Constraints and columns for table {table}: {result}")
+                return result
+
         except Exception as e:
-            print(f"Error while getting column name from {table} is {e}")
+            print(f"Error while getting constraints and columns for table {table}: {e}")
         finally:
             conn.close()
+
+# def get_columns_from_table(table):
+#     conn=get_db_connection()
+#     if conn:
+#         try:
+#             with conn.cursor() as cur:
+#                 if table =='genres':
+#                     return ('Description',)
+#                 elif table =='books_copies':
+#                     return ('Condition',)
+#                 cur.execute("""SELECT column_name FROM information_schema.columns 
+#                     WHERE table_name = %s AND ordinal_position > 1;
+#                 """,(table,))
+#                 columns=cur.fetchall()
+#                 columns_tuple=tuple(item[0] for item in columns)
+
+#                 if columns:
+#                     print(f"the columns from the {table} are {columns_tuple}")
+#                     return columns_tuple
+#         except Exception as e:
+#             print(f"Error while getting column name from {table} is {e}")
+#         finally:
+#             conn.close()
 
 def update_tables(updated_values,record_id,table):
     conn=get_db_connection()
@@ -1308,7 +1364,7 @@ def delete_information_from_table(updated_values):
 
                     """,(record_id,))
                 conn.commit()
-                print(f"It is successful in deleting the row with id{record_id} rom {table}")
+                print(f"It is successful in deleting the row with id{record_id} from {table}")
                 return 'success'
         
 

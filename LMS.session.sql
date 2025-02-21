@@ -350,8 +350,8 @@ INSERT INTO Books_Copies (Book_ID, Condition, Status)
 VALUES
 (32, 'New', 'Available')
 
-select *from books;
-
+select image_filename from books;
+update books set image_filename='1351964.jpeg' where book_id=3
 
 select *from books_copies;
                 select Count(book_id) from books_copies
@@ -423,3 +423,25 @@ VALUES
 select *from issued
 
 SELECT column_name FROM information_schema.columns WHERE table_name ='books'AND ordinal_position > 1;
+
+
+SELECT conname,
+       pg_get_constraintdef(oid) AS definition
+FROM pg_constraint
+WHERE conrelid = 'books_copies'::regclass
+  AND contype = 'c';
+
+
+
+WITH constraint_values AS (
+  SELECT substring(pg_get_constraintdef(oid)
+                   FROM 'in \((.*)\)') AS values_str
+  FROM pg_constraint
+  WHERE conrelid = 'books_copies'::regclass
+    AND contype = 'c'
+    AND pg_get_constraintdef(oid) LIKE '%status in%'
+)
+SELECT unnest(string_to_array(
+         replace(values_str, '''', ''), ','
+       )) AS valid_status
+FROM constraint_values;

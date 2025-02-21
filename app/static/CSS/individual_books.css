@@ -37,10 +37,9 @@ nav ul li a {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
-    max-width: 900px;
-    margin: auto;
-    
+    padding: 40px 20px; /* Adds space around the content */
+    max-width: 1000px; /* Limits width */
+    margin: 50px auto; /* Centers the content with spacing */
 }
 
 .book-upper {
@@ -48,56 +47,78 @@ nav ul li a {
     width: 100%;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 20px;
-}
-
-.book-info {
-    flex: 1;
-    padding-top: 50px;
-    padding-right: 20px;
-    padding-left: 20px;
-}
-
-.book-info h1 {
-    font-size: 2em;
-    margin-bottom: 10px;
-}
-
-.book-info p {
-    margin-bottom: 8px;
+    gap: 30px; /* Adds space between book cover and details */
 }
 
 .book-cover {
     flex: 1;
+    max-width: 350px; /* Adjusted to fit well with details */
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
+    align-items: center;
 }
 
 .book-cover img {
-    max-width: 2000px;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Makes sure it scales properly */
+    max-height: 500px; /* Prevents it from being too tall */
+    object-fit: contain; /* Ensures no cropping */
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.book-info {
+    flex: 2; /* Takes more space than the cover */
+    padding: 10px 0;
+}
+
+.book-info h1 {
+    font-size: 2.2em;
+    margin-bottom: 15px;
+}
+
+.book-info p {
+    margin-bottom: 8px;
+    font-size: 1.1em;
 }
 
 .book-synopsis {
     width: 100%;
     text-align: justify;
-    margin-top: 20px;
+    margin-top: 30px;
+    font-size: 1.1em;
+    line-height: 1.6;
 }
 
 .back-button {
     display: inline-block;
-    margin-top: 20px;
-    padding: 10px 20px;
+    margin-top: 30px;
+    padding: 12px 24px;
     background-color: #004d99;
     color: white;
     text-decoration: none;
-    border-radius: 5px;
+    border-radius: 6px;
+    font-size: 1.1em;
     transition: background-color 0.3s ease;
 }
 
 .back-button:hover {
     background-color: #003366;
+}
+
+/* Responsive Design for Mobile */
+@media (max-width: 768px) {
+    .book-upper {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .book-cover {
+        max-width: 250px;
+        margin-bottom: 20px;
+    }
+    .book-info {
+        text-align: center;
+    }
 }
 
 .footer {
