@@ -15,6 +15,7 @@ CREATE TABLE Authors (
     Email varchar(50) UNIQUE
 );
 
+
 CREATE TABLE Books (
     Book_ID SERIAL PRIMARY KEY,
     Book_Name VARCHAR(255) NOT NULL,
@@ -24,9 +25,11 @@ CREATE TABLE Books (
     Foreign key (Genre_ID) REFERENCES Genres(Genre_ID) ON DELETE SET NULL,
     Pages INT,
     Publication_Year DATE,
-    ISBN VARCHAR(13) UNIQUE
+    ISBN VARCHAR(13) UNIQUE,
+    Synopsis text,
+    image_filename text
 );
-
+A
 
 
 
@@ -34,11 +37,14 @@ CREATE TABLE Books_Copies (
     Copy_ID SERIAL PRIMARY KEY,
     Book_ID INT,
     Foreign KEY (Book_ID) REFERENCES Books(Book_ID) ON DELETE CASCADE,
-    Condition VARCHAR(50),
-    Status VARCHAR(50) DEFAULT 'Available'
+    Condition VARCHAR(50) check(Condition in ('New','Old')),
+    Status VARCHAR(50) DEFAULT 'Available' check(status in ('Available','pending','issued'))
 );
+-- CREATE TABLE CHECKING(
+--     Status VARCHAR(50) DEFAULT 'Available' check(status in ('Available','pending','issued'))
 
--- Table: Members
+-- )
+-- drop table checking;
 CREATE TABLE Members (
     Member_ID SERIAL PRIMARY KEY,
     Member_Name VARCHAR(150) NOT NULL,
@@ -54,14 +60,13 @@ CREATE TABLE Staff (
     Staff_ID SERIAL PRIMARY KEY,
     Staff_Name VARCHAR(150) NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
-    Phone_Number VARCHAR(15),
+    Phone_Number VARCHAR(10),
     Address TEXT,
-    Role VARCHAR(50) DEFAULT 'Staff', -- Can be 'Staff' or 'Admin'
+    Role VARCHAR(5) CHECK(Role IN ('staff','admin')), -- Can be 'Staff' or 'Admin'
     Join_Date DATE DEFAULT CURRENT_DATE,
     Password VARCHAR(255) NOT NULL -- Store hashed passwords
 );
 
--- Table: Issued
 CREATE TABLE Issued (
     Issued_ID SERIAL PRIMARY KEY,
     Copy_ID INT,
@@ -69,8 +74,8 @@ CREATE TABLE Issued (
     Member_ID INT,
     Foreign key (Member_ID) REFERENCES Members(Member_ID) ON DELETE CASCADE,
     Issued_Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    Due_Date TIMESTAMP NOT NULL,
-    Status VARCHAR(50) DEFAULT 'Issued',
+    Due_Date TIMESTAMP GENERATED ALWAYS AS (Issued_Date + INTERVAL '15 days') STORED,
+    Status VARCHAR(50) check(Status in ('issued','Returned','expired')),
     Staff_ID INT,
     Foreign key (Staff_ID) REFERENCES Staff(Staff_ID) ON DELETE SET NULL
 );
@@ -88,7 +93,6 @@ CREATE TABLE Fines (
     Foreign Key (Staff_ID) REFERENCES Staff(Staff_ID) ON DELETE SET NULL
 );
 
--- Table: Reservations
 CREATE TABLE Reservations (
     Reservation_ID SERIAL PRIMARY KEY,
     Copy_ID INT,
@@ -96,7 +100,7 @@ CREATE TABLE Reservations (
     Member_ID INT,
     Foreign key (Member_ID) REFERENCES Members(Member_ID) ON DELETE CASCADE,
     Reservation_Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    Status VARCHAR(50) DEFAULT 'Pending'
+    Status VARCHAR(50) DEFAULT 'Pending' check(Status in ('Returned','Pending','issued'))
 );
 
 
@@ -324,16 +328,17 @@ Where book_id = 2
 
 Group by book_id
 
-ALTER TABLE books ALTER COLUMN synopsis TYPE VARCHAR(500);
-
-
+ALTER TABLE books ALTER COLUMN synopsis TYPE text;
+delete from staff
+select *from staff
+select *from members;
 select *from reservations;
 
 
 select *from books;
 
 ALTER TABLE books 
-    ADD COLUMN IF NOT EXISTS Synopsis VARCHAR(200);
+    ADD COLUMN IF NOT EXISTS Synopsis VARCHAR(1000);
 
 select *from books_copies;
 select *from books;
@@ -406,7 +411,8 @@ where status ILIKE 'pending'
 select *from books_copies
 where UPPER(status) in ('AVAILABLE')
 
-
+delete from books_copies;
+delete from books;
 delete from reservations;
 delete from issued;
 
@@ -415,3 +421,5 @@ VALUES
 (16, 'New', 'Available')
 
 select *from issued
+
+SELECT column_name FROM information_schema.columns WHERE table_name ='books'AND ordinal_position > 1;

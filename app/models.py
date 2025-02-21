@@ -460,6 +460,7 @@ def register_members(Member_Name,Email,Phone_Number,Address,Join_Date,hashed_pas
 def register_staff(Member_Name,Email,Phone_Number,Address,role,Join_Date,hashed_password):
     print("now in rregister_staff function!!")
     conn = get_db_connection()
+    roles=role.lower()
     if not conn:
         return 'db_error'
     print("established connection")
@@ -477,7 +478,7 @@ def register_staff(Member_Name,Email,Phone_Number,Address,role,Join_Date,hashed_
             cur.execute("""
                     INSERT INTO staff (staff_name,Email,Phone_Number,Address,role,Join_Date,password)
                     VALUES (%s, %s, %s, %s, %s,%s,%s);
-            """, (Member_Name,Email,Phone_Number,Address,role,Join_Date,hashed_password))
+            """, (Member_Name,Email,Phone_Number,Address,roles,Join_Date,hashed_password))
             conn.commit()
             return 'success'
     except Exception as e:
@@ -496,24 +497,27 @@ def login_member(Email,password):
             # Fetch the user from the database
                 cur.execute('SELECT member_name, password FROM members WHERE email ILIKE %s', (Email,))
                 user = cur.fetchone()
-                print(f"the content of the user is {user}")
-                if not user:
-                    print("Notxx")
-                    return 'Not Registered'
-                hashed_password=bytes.fromhex(user[1].replace('\\x', ''))
-                print(hashed_password)
-                # Verify the password
-                if not bcrypt.checkpw(password.encode('utf-8'), hashed_password):
-                   print("Not")
-                   return 'Not Registered'
-                print("Not")
+                print(f"the content of the user from members table is {user}")
+                # if not user:
+                #     print("Notxx")
+                #     return 'Not Registered'
+                # hashed_password=bytes.fromhex(user[1].replace('\\x', ''))
+                # print(hashed_password)
+                # # Verify the password
+                # if not bcrypt.checkpw(password.encode('utf-8'), hashed_password):
+                #    print("Not")
+                #    return 'Not Registered'
+                # print("Not")
                 staff=login_staff(Email,password)
-                if not staff:
-                    return 'Success',user[0]
+                if not staff and not user:
+                    return 'Not Registered'
+                elif not staff and user:
+                    return 'success',user[0]
+                elif staff and not user:
+                    return 'staff',staff[0],staff[1]
                 return 'Twin',staff[0],staff[1]            
         except Exception as e:
              print(f"Error login: {e}")
-             return e
         finally:
             conn.close()
 
@@ -1130,16 +1134,16 @@ def update_reservations_for_issued(copy_id,member_id,status,status_check):
             conn.close()
 
             
-def issue_books(copy_id,member_id,issued_date,due_date,status,handled_by):
-    print(copy_id,member_id,issued_date,due_date,status,handled_by)
+def issue_books(copy_id,member_id,status,handled_by):
+    print(copy_id,member_id,status,handled_by)
     conn=get_db_connection()
     if conn:
         try:
             with conn.cursor() as cur:
                 cur.execute("""INSERT INTO Issued (Copy_ID, Member_ID, Issued_Date, Due_Date, Status, Staff_ID)
                     VALUES 
-                    (%s, %s, %s, %s, %s, %s) Returning issued_id;
-                """,(copy_id,member_id,issued_date,due_date,status,handled_by))
+                    (%s, %s, %s, %s) Returning issued_id;
+                """,(copy_id,member_id,status,handled_by))
                 conn.commit()
                 issuedbook=cur.fetchone()
                 print("okay inserted done!!!!!")
@@ -1197,5 +1201,83 @@ def add_book_copy(book_id, status, condition):
         except Exception as e:
             conn.rollback()
             print(f"The error while adding book copy is :{e}")
+        finally:
+            conn.close()
+
+
+def edits_table(table,id):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("""
+                select *from %s
+                """,(table,id))
+        
+
+        except Exception as e:
+            conn.rollback()
+            print(f"Error while editing in {table} is {e}")
+            return e 
+        finally:
+            conn.close()
+
+
+def get_columns_from_table(table):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                if table =='genres':
+                    return ('Description',)
+                elif table =='books_copies':
+                    return ('Condition',)
+                cur.execute("""SELECT column_name FROM information_schema.columns 
+                    WHERE table_name = %s AND ordinal_position > 1;
+                """,(table,))
+                columns=cur.fetchall()
+                columns_tuple=tuple(item[0] for item in columns)
+
+                if columns:
+                    print(f"the columns from the {table} are {columns_tuple}")
+                    return columns_tuple
+        except Exception as e:
+            print(f"Error while getting column name from {table} is {e}")
+        finally:
+            conn.close()
+
+def update_tables(updated_values,record_id,table):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                set_clause = ", ".join([f"{col} = '{updated_values[col]}'" for col in updated_values.keys()])
+                values = list(updated_values.values())
+                if table.lower()=='books_copies':
+                    id='copy_id'
+                elif table.lower()=='genres':
+                    id='genre_id'
+                elif table.lower()=='books':
+                    id='book_id'
+                elif table.lower()=='members':
+                    id='member_id'
+                elif table.lower()=='staff':
+                    id='staff_id'
+                else:
+                    id='author_id'
+                print(f"The set clause is {set_clause} and id is {id} with record id equal to {record_id}")
+                cur.execute(f"""
+                                
+                    UPDATE {table} SET {set_clause} WHERE {id} = %s  
+
+                    """,(record_id,))
+                conn.commit()
+                print(f"It is success")
+                return 'success'
+        
+
+        except Exception as e:
+            conn.rollback()
+            print(f"the error while editing is {e}")
         finally:
             conn.close()

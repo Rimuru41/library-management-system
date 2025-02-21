@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for,jsonify,flash,session,current_app
-from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies,get_member_reservations,get_book_id_from_copy_ids,issue_books,get_staff_id_by_email,update_reservations_for_issued,Update_issued_books,add_book_copy,get_staffs,get_all_books_copies,get_all_genres,get_all_authors
+from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies,get_member_reservations,get_book_id_from_copy_ids,issue_books,get_staff_id_by_email,update_reservations_for_issued,Update_issued_books,add_book_copy,get_staffs,get_all_books_copies,get_all_genres,get_all_authors,get_columns_from_table,update_tables
 import os 
 import bcrypt
 from .images import generate_filename_with_isbn,create_default_cover,resize_image
@@ -107,12 +107,19 @@ def login():
         print(f"The user of result [0[ is {user}")
         if result == 'Not Registered':
             flash('Incorrect Email or Password!', 'error')
-        elif result[0] == 'Success':
+        elif result[0] == 'success':
             session["user_name"]=user
             session["email"]=Email
             session["role"]='member'
             print(f"The email in the login section is {Email}")
             return redirect(url_for('main.members_dashboard'))
+        elif result[0]=='staff':
+            session["user_name"] = result[1]
+            session["email"] = Email
+            session["role"]=result[2]
+            if result[2]=='admin':
+                return redirect(url_for('main.admin_dashboard'))
+            return redirect(url_for('main.staff_dashboard'))
         elif result[0] == 'Twin':
             session["user_name"] = user
             session["email"] = Email
@@ -129,9 +136,9 @@ def set_role():
     session["role"] = data["role"]
     
     # Redirect based on role
-    if data["role"] == "Member":
+    if data["role"] == "member":
         return jsonify({"redirect": url_for('main.members_dashboard')})
-    elif data["role"] == "Admin":
+    elif data["role"] == "admin":
         return jsonify({"redirect": url_for('main.admin_dashboard')})
     else:  # Default for Staff or others
         return jsonify({"redirect": url_for('main.staff_dashboard')})
@@ -540,7 +547,7 @@ def Issue_book_by_staff():
     if session["role"]!='member':
         staff_id=get_staff_id_by_email(session["email"])
         print(f"got the staff id which is {staff_id} and now insrting into issued books table")
-        issued_booksss=issue_books(copy_id=copy_id,member_id=member_id,issued_date='2020-01-01',due_date='2020-02-01',status='Issued',handled_by=staff_id)
+        issued_booksss=issue_books(copy_id=copy_id,member_id=member_id,status='Issued',handled_by=staff_id)
         print(f"the issued book is {issued_booksss}")
         if issued_booksss=='success':
             reserve_status='issued'
@@ -630,3 +637,41 @@ def Views():
         flash("please log in first!!","error")
         return redirect(url_for('main.login'))
     return render_template('views.html')
+
+@main.route('/get_columns')
+def get_columns():
+    table = request.args.get('table')
+    record_id = request.args.get('id')
+
+    if not table or not record_id:
+        return jsonify({'error': 'Missing table or ID'}), 400
+    columns=get_columns_from_table(table) #getting columns from table
+    print(f"The columns are {columns} from {table} and going to extract from {record_id}")
+    # Now sending this tuple for form submission which is dynamic
+    return jsonify({'columns': columns, 'table': table, 'id': record_id})
+
+@main.route('/edit_tables', methods=['POST'])
+def edit_tables():
+    table = request.args.get('table')
+    record_id = request.args.get('id')
+    updated_values = request.get_json()
+    print(f"int the edit tables endpoint {table},{record_id},{updated_values}")
+    if not table or not record_id or not updated_values:
+        return jsonify({'error': 'Missing data'}), 400
+    
+    results=update_tables(updated_values=updated_values,record_id=record_id,table=table)
+    redirect_url = "/Views" if session.get("role") != "member" else "/"
+
+    if results=='success':
+        return jsonify({'success':'Edited Successfully !','redirect_url':redirect_url})
+    else:
+        return jsonify({'error':'Some Error encountered!!!'})
+    
+
+ 
+@main.route('/edit_forms.html')
+def edit_form_page():
+    table = request.args.get("table", "")
+    record_id = request.args.get("id", "")
+    # Renders the edit_forms.html template.
+    return render_template('edit_forms.html', table=table, record_id=record_id)

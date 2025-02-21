@@ -6,6 +6,7 @@
     <title>View Books</title>
     <link rel="stylesheet" href="/static/CSS/tables.css"> <!-- Link to external CSS file -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/static/javascript/edits.js"></script> <!-- This should be last -->
 
 
 </head>
@@ -15,7 +16,7 @@
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="Search Books..." onkeyup="filterTable()">
     </div>
-    <table id="dataTable"
+    <table id="dataTable">
         <thead>
             <tr>
                 <th>Book ID</th>
@@ -37,7 +38,7 @@
                 <td>{{ book[3] }}</td>
                 <td>{{ book[4] }}</td>
                 <td>
-                    <button class="edit-btn" data-book-id="{{ book[5] }}" onclick="handleEdit(this)">Edit</button>
+                    <button class="edit-btn" data-table="books" data-id="{{ book[5] }}" onclick="handleEdit(this)">Edit</button>
                 </td>
             </tr>
             {% endfor %}
@@ -47,6 +48,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script src="/static/javascript/search.js"></script>
+    <div id="edit-form-container"></div>  <!-- Empty before clicking "Edit" -->
 
 </body>
 </html>

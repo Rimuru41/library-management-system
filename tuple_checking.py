@@ -1,13 +1,10 @@
-original_tuple = ('okay', 'right', 'left')
-options = 'up'  # or 'down'
+                
+updated_values={
+    'Condition':'OLD',
+    'Status':'Available'
+}
+kamal='OKAY'
+print(kamal.lower)
+# set_clause = ", ".join([f"{col} = %s" for col in updated_values.keys()])
 
-okay='error'
-
-if okay:
-    print("yes!!!!!")
-else:
-    print("NO!!!!!")
-# Convert 'options' into a tuple and concatenate
-
-new_tuple = original_tuple + (options,)
-
+# print(set_clause)

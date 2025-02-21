@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Members</title>
     <link rel="stylesheet" href="/static/CSS/tables.css"> <!-- Link to external CSS file -->
-
+    <script src="/static/javascript/edits.js"></script> <!-- This should be last -->
 </head>
 <body>
     <h1 style="text-align: center;">Authors List</h1>
@@ -13,7 +13,7 @@
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="Search Members..." onkeyup="filterTable()">
     </div>
-    <table id="dataTable"
+    <table id="dataTable">
         <thead>
             <tr>
                 
@@ -36,7 +36,7 @@
 
 
                 <td>
-                    <button class="edit-btn" data-author-id="{{ book[0] }}" onclick="handleEdit(this)">Edit</button>
+                    <button class="edit-btn" data-table="authors" data-id="{{ book[0] }}" onclick="handleEdit(this)">Edit</button>
 
                 </td>
             </tr>
@@ -44,6 +44,7 @@
         </tbody>
     </table>
     <script src="/static/javascript/search.js"></script>
+    <div id="edit-form-container"></div>  <!-- Empty before clicking "Edit" -->
 
 </body>
 </html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Record</title>
+    <link rel="stylesheet" href="/static/CSS/edit_forms.css">
+    <script defer src="/static/javascript/edit_forms.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+    <div class="container">
+        <h1>Edit {{ table }} </h1>
+        <form id="edit-form">
+            <div id="form-fields"></div> <!-- Form fields will be dynamically generated here -->
+            <button type="submit" class="btn">Save Changes</button>
+        </form>
+    </div>
+
+    
+</body>
+</html>
