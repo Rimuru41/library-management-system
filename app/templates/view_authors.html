@@ -6,6 +6,8 @@
     <title>Members</title>
     <link rel="stylesheet" href="/static/CSS/tables.css"> <!-- Link to external CSS file -->
     <script src="/static/javascript/edits.js"></script> <!-- This should be last -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 <body>
     <h1 style="text-align: center;">Authors List</h1>
@@ -37,7 +39,7 @@
 
                 <td>
                     <button class="edit-btn" data-table="authors" data-id="{{ book[0] }}" onclick="handleEdit(this)">Edit</button>
-
+                    <button class="edit-btn" data-table="authors" data-id="{{ book[0] }}" onclick="handleDelete(this)">Delete</button>
                 </td>
             </tr>
             {% endfor %}

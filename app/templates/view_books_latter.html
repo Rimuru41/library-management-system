@@ -39,6 +39,8 @@
                 <td>{{ book[4] }}</td>
                 <td>
                     <button class="edit-btn" data-table="books" data-id="{{ book[5] }}" onclick="handleEdit(this)">Edit</button>
+                    <button class="edit-btn" data-table="books" data-id="{{ book[5] }}" onclick="handleDelete(this)">Delete</button>
+
                 </td>
             </tr>
             {% endfor %}

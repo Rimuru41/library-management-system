@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for,jsonify,flash,session,current_app
-from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies,get_member_reservations,get_book_id_from_copy_ids,issue_books,get_staff_id_by_email,update_reservations_for_issued,Update_issued_books,add_book_copy,get_staffs,get_all_books_copies,get_all_genres,get_all_authors,get_columns_from_table,update_tables
+from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies,get_member_reservations,get_book_id_from_copy_ids,issue_books,get_staff_id_by_email,update_reservations_for_issued,Update_issued_books,add_book_copy,get_staffs,get_all_books_copies,get_all_genres,get_all_authors,get_columns_from_table,update_tables,delete_information_from_table
 import os 
 import bcrypt
 from .images import generate_filename_with_isbn,create_default_cover,resize_image
@@ -675,3 +675,21 @@ def edit_form_page():
     record_id = request.args.get("id", "")
     # Renders the edit_forms.html template.
     return render_template('edit_forms.html', table=table, record_id=record_id)
+
+
+@main.route('/delete', methods=['POST'])
+def delete_contents():
+    infomation = request.get_json()
+    
+    print(f"in the delete  endpoint The information are {infomation}")
+    if not infomation:
+        return jsonify({'error': 'Missing data'}), 400
+    
+    results=delete_information_from_table(updated_values=infomation)
+    redirect_url = "/Views" if session.get("role") != "member" else "/"
+
+    if results=='success':
+        return jsonify({'success':'Deleted Successfully !','redirect_url':redirect_url})
+    else:
+        return jsonify({'error':'Some Error encountered!!!'})
+    

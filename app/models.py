@@ -1281,3 +1281,39 @@ def update_tables(updated_values,record_id,table):
             print(f"the error while editing is {e}")
         finally:
             conn.close()
+
+
+def delete_information_from_table(updated_values):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                table=updated_values["table"]
+                record_id=updated_values["recordId"]
+                if table.lower()=='books_copies':
+                    id='copy_id'
+                elif table.lower()=='genres':
+                    id='genre_id'
+                elif table.lower()=='books':
+                    id='book_id'
+                elif table.lower()=='members':
+                    id='member_id'
+                elif table.lower()=='staff':
+                    id='staff_id'
+                else:
+                    id='author_id'
+                cur.execute(f"""
+                                
+                    Delete from {table} WHERE {id} = %s  
+
+                    """,(record_id,))
+                conn.commit()
+                print(f"It is successful in deleting the row with id{record_id} rom {table}")
+                return 'success'
+        
+
+        except Exception as e:
+            conn.rollback()
+            print(f"the error while editing is {e}")
+        finally:
+            conn.close()
