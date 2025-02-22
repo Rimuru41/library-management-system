@@ -705,7 +705,7 @@ def get_all_reservations():
             print("Getting reservations")
             with conn.cursor() as cur:
                 cur.execute("""        
-                    Select members.member_name,books.book_name,reservations.reservation_date,reservations.status,members.member_id,books_copies.copy_id 
+                    Select members.member_name,books.book_name,reservations.reservation_date,reservations.status,members.member_id,books_copies.copy_id,reservations.reservation_id 
                     from reservations
                     inner join members On reservations.member_id=members.member_id
                     inner join books_copies On reservations.copy_id=books_copies.copy_id
@@ -781,7 +781,7 @@ def get_all_fines_history():
         try:
             with conn.cursor() as cur:
                 cur.execute("""
-                        Select members.member_name,books.book_name,fines.amount,issued.issued_date,fines.fine_date,fines.payment_date,fines.paid_status,staff.staff_name FROM fines
+                        Select members.member_name,books.book_name,fines.amount,issued.issued_date,fines.fine_date,fines.payment_date,fines.paid_status,staff.staff_name,fine_id FROM fines
                         inner join issued On issued.issued_id=fines.issued_id
                         inner join members ON members.member_id=issued.member_id
                         inner join books_copies On books_copies.copy_id=issued.copy_id
@@ -805,7 +805,7 @@ def get_all_issued_books():
         try:
             with conn.cursor() as cur:
                 cur.execute("""
-                    Select members.member_name,books.book_name,issued.issued_date FROM issued
+                    Select members.member_name,books.book_name,issued.issued_date,issued_id,issued.status FROM issued
                     inner join members ON members.member_id=issued.member_id
                     inner join books_copies On books_copies.copy_id=issued.copy_id
                     inner join books ON books.book_id=books_copies.book_id
@@ -831,7 +831,7 @@ def get_members_fines_history_by_email(email):
             with conn.cursor() as cur:
                 print("start")
                 cur.execute("""
-                        Select members.member_name,books.book_name,fines.amount,issued.issued_date,fines.fine_date,fines.payment_date,fines.paid_status,staff.staff_name FROM fines
+                        Select members.member_name,books.book_name,fines.amount,issued.issued_date,fines.fine_date,fines.payment_date,fines.paid_status,staff.staff_name,fines.fine_id FROM fines
                         inner join issued On issued.issued_id=fines.issued_id
                         inner join members ON members.member_id=issued.member_id
                         inner join books_copies On books_copies.copy_id=issued.copy_id
@@ -858,7 +858,7 @@ def get_members_reservations_by_email(email):
         try:
             with conn.cursor() as cur:
                 cur.execute("""        
-                    Select members.member_name,books.book_name,reservations.reservation_date,reservations.status 
+                    Select members.member_name,books.book_name,reservations.reservation_date,reservations.status,reservations.reservation_id 
                     from reservations
                     inner join members On reservations.member_id=members.member_id
                     inner join books_copies On reservations.copy_id=books_copies.copy_id
@@ -882,7 +882,7 @@ def get_issued_books_by_Email(email):
         try:
             with conn.cursor() as cur:
                 cur.execute("""
-                    Select members.member_name,books.book_name,issued.issued_date FROM issued
+                    Select members.member_name,books.book_name,issued.issued_date,issued.issued_id,issued.issued_status FROM issued
                     inner join members ON members.member_id=issued.member_id
                     inner join books_copies On books_copies.copy_id=issued.copy_id
                     inner join books ON books.book_id=books_copies.book_id
@@ -1500,5 +1500,24 @@ def get_isbn_from_book_id(book_id):
                     print("Book not found which indicates some error")
         except Exception as e:
             print(f"The erro while getting isbn is {e}")
+        finally:
+            conn.close()
+
+
+def update_fines_status(fine_id,status):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    update fines set paid_status = %s where fine_id = %s;
+
+                            """,(status,fine_id))
+                conn.commit()
+                print('Successful')
+                return 'success'
+            
+        except Exception as e:
+            print(f"the error while updating the fines table is {e}")
         finally:
             conn.close()

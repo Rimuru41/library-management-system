@@ -27,10 +27,11 @@
     <table id="dataTable"
         <thead>
             <tr>
-                
+                <th>Issued ID</th>
                 <th>Name</th>
                 <th>Books</th>
                 <th>Date</th>
+                <th>Status</th>
   
                 
             </tr>
@@ -38,9 +39,12 @@
         <tbody>
             {% for books in issued_books %}
             <tr>
+                <td>{{ books[3] }}</td>
                 <td>{{ books[0] }}</td>
                 <td>{{ books[1] }}</td>
                 <td>{{ books[2] }}</td>
+                <td>{{ books[4] }}</td>
+
             </tr>
             {% endfor %}
         </tbody>

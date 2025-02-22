@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for,jsonify,flash,session,current_app
-from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies,get_member_reservations,get_book_id_from_copy_ids,issue_books,get_staff_id_by_email,update_reservations_for_issued,Update_issued_books,add_book_copy,get_staffs,get_all_books_copies,get_all_genres,get_all_authors,get_columns_from_table,update_tables,delete_information_from_table,check_and_apply_fines,check_and_apply_reservations,get_isbn_from_book_id
+from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies,get_member_reservations,get_book_id_from_copy_ids,issue_books,get_staff_id_by_email,update_reservations_for_issued,Update_issued_books,add_book_copy,get_staffs,get_all_books_copies,get_all_genres,get_all_authors,get_columns_from_table,update_tables,delete_information_from_table,check_and_apply_fines,check_and_apply_reservations,get_isbn_from_book_id,update_fines_status
 import os 
 import bcrypt
 from .images import generate_filename_with_isbn,create_default_cover,resize_image
@@ -399,7 +399,7 @@ def book_details(book_id):
 def fines():
     fines_history=get_all_fines_history()
     print(f"the fines is {fines_history}")
-    return render_template('all_fines_history.html',fines_history=fines_history,role= session["role"])
+    return render_template('all_fines_history_for_staff.html',fines_history=fines_history,role= session["role"])
 
 @main.route('/Members')
 def view_members():
@@ -724,20 +724,36 @@ def delete_contents():
     else:
         return jsonify({'error':'Some Error encountered!!!'})
     
-@main.route('/check_fines')
-def check_fines():
-    overdue_books=check_and_apply_fines()
-    if overdue_books:
-        for copy_id in overdue_books:
-            update_book_copies(copy_id,'Available')
-    return render_template('all_fines_history.html')
+# @main.route('/check_fines')
+# def check_fines():
+#     overdue_books=check_and_apply_fines()
+#     if overdue_books:
+#         for copy_id in overdue_books:
+#             update_book_copies(copy_id,'Available')
+#     return render_template('all_fines_history.html')
 
-@main.route('/expire_reservations')
-def expire_reservations():
-    expired_reserve=check_and_apply_reservations()
-    if expired_reserve:
-        for copy_id in expired_reserve:
-            update_book_copies(copy_id,'Available')
-    return render_template('all_reservations.html')
+# @main.route('/expire_reservations')
+# def expire_reservations():
+#     expired_reserve=check_and_apply_reservations()
+#     if expired_reserve:
+#         for copy_id in expired_reserve:
+#             update_book_copies(copy_id,'Available')
+#     return render_template('all_reservations.html')
 
-        
+
+@main.route('/update_fines',methods=['POST'])
+def update_fines():
+    data = request.get_json()
+    fine_id = data['fine_id']
+    action = data['action']
+    print(f"The fine id from the issued book function in routes.py is {fine_id} and ")
+    print(session["role"])
+    if "user_name" not in session:
+        flash("Please Log in first!!!","error")
+        return redirect(url_for("main.login"))
+    
+    fines_history=update_fines_status(fine_id,'True')
+    if fines_history=='success':
+            return jsonify({"success": True, "message": "Fine Paid  Successfully!", "redirect_url": url_for('main.admin_dashboard')})
+    else:
+            return jsonify({"error": True, "message": "Error Encountered!", "redirect_url": url_for('main.admin_dashboard')})

@@ -27,7 +27,7 @@
     <table id="dataTable"
         <thead>
             <tr>
-                
+                <th>Reserve Id</th>
                 <th>Name</th>
                 <th>Books</th>
                 <th>Date</th>
@@ -41,6 +41,8 @@
         <tbody>
             {% for reservation in reservations %}
             <tr>
+                <td>{{ reservation[6] }}</td>
+
                 <td>{{ reservation[0] }}</td>
                 <td>{{ reservation[1] }}</td>
                 <td>{{ reservation[2] }}</td>

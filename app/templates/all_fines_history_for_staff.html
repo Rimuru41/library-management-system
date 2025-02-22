@@ -52,12 +52,18 @@
 
                 <td>{{ fines[4] }}</td>
                 <td>{{ fines[5] }}</td>
-                <td>{{ fines[6] }}</td>
+                <td>
+                <button class="reserve-btn" data-fine-id="{{ fines[8] }}" onclick="handleFines(this)">{{fines[6]}}</button>
+                </td>
                 <td>{{ fines[7] }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/static/javascript/staff_Fines.js"></script>
     <script src="/static/javascript/search.js">
 
     </script>
