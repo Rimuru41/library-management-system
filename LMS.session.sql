@@ -496,3 +496,17 @@ DROP CONSTRAINT IF EXISTS reservations_status_check;
 
 ALTER TABLE Reservations
 ADD CONSTRAINT reservations_status_check CHECK (Status IN ('Returned', 'Pending', 'issued', 'expired'));
+
+
+INSERT INTO Fines (Issued_ID, Amount, Fine_Date, Paid_Status, Payment_Date, Staff_ID)
+VALUES (
+  9,
+    50.00,  -- Example fine amount (modify as needed)
+    CURRENT_TIMESTAMP,  -- Fine Date
+    FALSE,  -- Fine is unpaid
+    NULL,  -- Payment Date (since unpaid)
+    3 
+);
+select *from reservations
+update reservations set status='expired' where reservation_id=9
+delete from issued where issued_id =9
