@@ -6,13 +6,6 @@ env/
 *.pyc
 __pycache__/
 
-# Ignore database and logs
-*.sqlite3
-*.log
-
-# Ignore system files
-.DS_Store
-Thumbs.db
-
 #Ignore .Vscode
 .vscode/
+

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for,jsonify,flash,session,current_app
-from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies,get_member_reservations,get_book_id_from_copy_ids,issue_books,get_staff_id_by_email,update_reservations_for_issued,Update_issued_books,add_book_copy,get_staffs,get_all_books_copies,get_all_genres,get_all_authors,get_columns_from_table,update_tables,delete_information_from_table
+from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies,get_member_reservations,get_book_id_from_copy_ids,issue_books,get_staff_id_by_email,update_reservations_for_issued,Update_issued_books,add_book_copy,get_staffs,get_all_books_copies,get_all_genres,get_all_authors,get_columns_from_table,update_tables,delete_information_from_table,check_and_apply_fines,check_and_apply_reservations,get_isbn_from_book_id
 import os 
 import bcrypt
 from .images import generate_filename_with_isbn,create_default_cover,resize_image
@@ -661,24 +661,43 @@ def get_columns():
         'constraints': constraints_list,
         'foreign_keys': foreign_keys
     })
-
 @main.route('/edit_tables', methods=['POST'])
 def edit_tables():
     table = request.args.get('table')
     record_id = request.args.get('id')
-    updated_values = request.get_json()
-    print(f"int the edit tables endpoint {table},{record_id},{updated_values}")
-    if not table or not record_id or not updated_values:
-        return jsonify({'error': 'Missing data'}), 400
-    
-    results=update_tables(updated_values=updated_values,record_id=record_id,table=table)
+
+    if not table or not record_id:
+        return jsonify({'error': 'Missing table or ID'}), 400
+
+    updated_values = request.form.to_dict()  # Extract text data from the form
+    print(f"In the edit_tables endpoint: Table={table}, Record ID={record_id}, Updated Values={updated_values}")
+
+    # Process uploaded files
+    for field_name, file in request.files.items():
+        if file and file.filename != '':
+            if allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                ISBN = get_isbn_from_book_id(record_id)
+                filename = generate_filename_with_isbn(filename, ISBN)  # Append record ID
+                file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+
+                file.save(file_path)
+                resize_image(file_path)
+                print(f"Updated image saved as: {filename}")
+
+                updated_values[field_name] = filename  # Store filename in the database
+            else:
+                return jsonify({'error': f'Invalid file type for {field_name}'}), 400
+
+    # Update database with new values
+    results = update_tables(updated_values=updated_values, record_id=record_id, table=table)
+
     redirect_url = "/Views" if session.get("role") != "member" else "/"
 
-    if results=='success':
-        return jsonify({'success':'Edited Successfully !','redirect_url':redirect_url})
+    if results == 'success':
+        return jsonify({'success': 'Edited Successfully!', 'redirect_url': redirect_url})
     else:
-        return jsonify({'error':'Some Error encountered!!!'})
-    
+        return jsonify({'error': 'Some error encountered!'})
 
  
 @main.route('/edit_forms.html')
@@ -705,3 +724,20 @@ def delete_contents():
     else:
         return jsonify({'error':'Some Error encountered!!!'})
     
+@main.route('/check_fines')
+def check_fines():
+    overdue_books=check_and_apply_fines()
+    if overdue_books:
+        for copy_id in overdue_books:
+            update_book_copies(copy_id,'Available')
+    return render_template('all_fines_history.html')
+
+@main.route('/expire_reservations')
+def expire_reservations():
+    expired_reserve=check_and_apply_reservations()
+    if expired_reserve:
+        for copy_id in expired_reserve:
+            update_book_copies(copy_id,'Available')
+    return render_template('all_reservations.html')
+
+        

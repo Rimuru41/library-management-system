@@ -98,7 +98,7 @@ CREATE TABLE Reservations (
     Copy_ID INT,
     Foreign Key (Copy_ID) References Books_Copies(Copy_ID) ON DELETE CASCADE,
     Member_ID INT,
-    Foreign key (Member_ID) REFERENCES Members(Member_ID) ON DELETE CASCADE,
+    Foreign key (MReservationsember_ID) REFERENCES Members(Member_ID) ON DELETE CASCADE,
     Reservation_Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     Status VARCHAR(50) DEFAULT 'Pending' check(Status in ('Returned','Pending','issued'))
 );
@@ -489,3 +489,10 @@ delete *from issued;
 delete from reservations;
 delete from books_copies;
 delete from books;
+
+
+ALTER TABLE Reservations
+DROP CONSTRAINT IF EXISTS reservations_status_check;
+
+ALTER TABLE Reservations
+ADD CONSTRAINT reservations_status_check CHECK (Status IN ('Returned', 'Pending', 'issued', 'expired'));

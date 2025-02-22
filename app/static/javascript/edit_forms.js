@@ -39,54 +39,84 @@ document.addEventListener("DOMContentLoaded", function() {
             let inputGroup = document.createElement("div");
             inputGroup.classList.add("input-group");
 
+            let checkbox = document.createElement("input");
+            checkbox.setAttribute("type", "checkbox");
+            checkbox.setAttribute("id", `${column}-checkbox`);
+            checkbox.classList.add("column-checkbox");
+
             let label = document.createElement("label");
             label.textContent = column;
             label.setAttribute("for", column);
 
-            if (data.constraints && data.constraints[column]) {
+            let input;
+            if (column.toLowerCase().includes("image")) {
+                // If column contains "image", use file input
+                input = document.createElement("input");
+                input.setAttribute("type", "file");
+                input.setAttribute("name", column);
+                input.setAttribute("id", column);
+                input.disabled = true; // Initially disabled
+            } else if (column.toLowerCase().includes("year") || column.toLowerCase().includes("date")) {
+                // If column contains "year" or "date", use date input
+                input = document.createElement("input");
+                input.setAttribute("type", "date");
+                input.setAttribute("name", column);
+                input.setAttribute("id", column);
+                input.disabled = true; // Initially disabled
+            } else if (data.constraints && data.constraints[column]) {
                 // If column has constraints, create a dropdown
-                let select = document.createElement("select");
-                select.setAttribute("name", column);
-                select.setAttribute("id", column);
+                input = document.createElement("select");
+                input.setAttribute("name", column);
+                input.setAttribute("id", column);
+                input.disabled = true; // Initially disabled
 
                 data.constraints[column].forEach(value => {
                     let option = document.createElement("option");
                     option.value = value;
                     option.textContent = value;
-                    select.appendChild(option);
+                    input.appendChild(option);
                 });
-
-                inputGroup.appendChild(label);
-                inputGroup.appendChild(select);
             } else {
-                // Otherwise, create a regular input field
-                let input = document.createElement("input");
+                // Otherwise, create a regular text input field
+                input = document.createElement("input");
                 input.setAttribute("type", "text");
                 input.setAttribute("name", column);
                 input.setAttribute("id", column);
-
-                inputGroup.appendChild(label);
-                inputGroup.appendChild(input);
+                input.disabled = true; // Initially disabled
             }
 
+            checkbox.addEventListener("change", function() {
+                input.disabled = !checkbox.checked;
+            });
+
+            inputGroup.appendChild(checkbox);
+            inputGroup.appendChild(label);
+            inputGroup.appendChild(input);
             formFields.appendChild(inputGroup);
         });
     })
     .catch(error => console.error("Error fetching columns:", error));
 
-
     // Handle form submission
     document.getElementById("edit-form").addEventListener("submit", function(event) {
         event.preventDefault();
 
-        let formData = new FormData(this);
-        let jsonData = {};
-        formData.forEach((value, key) => jsonData[key] = value);
+        let formData = new FormData();
+        document.querySelectorAll(".column-checkbox:checked").forEach(checkbox => {
+            let column = checkbox.id.replace("-checkbox", "");
+            let input = document.getElementById(column);
+            if (input) {
+                if (input.type === "file" && input.files.length > 0) {
+                    formData.append(column, input.files[0]); // Append file
+                } else {
+                    formData.append(column, input.value);
+                }
+            }
+        });
 
         fetch(`/edit_tables?table=${table}&id=${recordId}`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(jsonData)
+            body: formData // Send FormData for file support
         })
         .then(response => response.json())
         .then(data => {
