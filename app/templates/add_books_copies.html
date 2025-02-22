@@ -8,12 +8,29 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
+    <header>
+        <button style="float: right;">
+            <a href="{% if role|lower == 'member' %}/members_dashboard
+            {% elif role|lower== 'staff' %}/staff_dashboard
+            {% elif role|lower == 'admin' %}/admin_dashboard
+            {% else %}/
+            {% endif %}" class="back-button">
+                Go Back
+            </a>
+        </button> 
+    </header>
     <h1 style="text-align: center;">Book List</h1>
 
     <!-- Search Bar -->
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="Search Books..." onkeyup="filterTable()">
     </div>
+
+    <br>
+    <br>  
+    <br>  
+  
+    
 
     <table id="dataTable">
         <thead>
@@ -65,7 +82,7 @@
             </form>
         </div>
     </div>
-
+ 
 
     <script src="/static/javascript/books_copies.js"></script> 
     <script src="/static/javascript/search.js"></script>

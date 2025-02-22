@@ -1,6 +1,8 @@
 import random
 book_idss=(50,)
 print(len(book_idss))
+
+
 # if book_idss[1]:
 #     print("NOt null")
 # else:

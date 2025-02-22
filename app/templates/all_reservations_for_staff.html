@@ -8,6 +8,17 @@
 
 </head>
 <body>
+    <header>
+        <button style="float: right;">
+            <a href="{% if role|lower == 'member' %}/members_dashboard
+            {% elif role|lower== 'staff' %}/staff_dashboard
+            {% elif role|lower == 'admin' %}/admin_dashboard
+            {% else %}/
+            {% endif %}" class="back-button">
+                Go Back
+            </a>
+        </button> 
+    </header>
     <h1 style="text-align: center;">Reservations List</h1>
     <!-- Search Bar -->
     <div class="search-container">
@@ -21,8 +32,8 @@
                 <th>Books</th>
                 <th>Date</th>
                 <th>Status</th>
-                <th>member id</th>
-                <th>copy_Id</th>
+                <!-- <th>member id</th>
+                <th>copy_Id</th> -->
 
                 
             </tr>
@@ -36,8 +47,8 @@
                 <td>
                     <button class="reserve-btn" data-member-id="{{ reservation[4] }}" data-copy-id="{{ reservation[5] }}" onclick="handleReservation(this)">{{reservation[3]}}</button>
                 </td>
-                <td>{{ reservation[4] }}</td>
-                <td>{{ reservation[5] }}</td>
+                <!-- <td>{{ reservation[4] }}</td>
+                <td>{{ reservation[5] }}</td> -->
 
             </tr>
             {% endfor %}

@@ -54,7 +54,9 @@ def create_tables():
                         Foreign key (Genre_ID) REFERENCES Genres(Genre_ID) ON DELETE SET NULL,
                         Pages INT,
                         Publication_Year DATE,
-                        ISBN VARCHAR(13) UNIQUE
+                        ISBN VARCHAR(13) UNIQUE,
+                        Synopsis text,
+                        image_filename text
                     );
                 """)
                 conn.commit()   
@@ -63,8 +65,8 @@ def create_tables():
                         Copy_ID SERIAL PRIMARY KEY,
                         Book_ID INT,
                         Foreign KEY (Book_ID) REFERENCES Books(Book_ID) ON DELETE CASCADE,
-                        Condition VARCHAR(50),
-                        Status VARCHAR(50) DEFAULT 'Available'
+                        Condition VARCHAR(50) check(Condition in ('New','Old')),
+                        Status VARCHAR(50) DEFAULT 'Available' check(status in ('Available','pending','issued'))
                     );
                 """)
                 conn.commit()   
@@ -87,7 +89,7 @@ def create_tables():
                         Email VARCHAR(100) UNIQUE NOT NULL,
                         Phone_Number VARCHAR(15),
                         Address TEXT,
-                        Role VARCHAR(50) DEFAULT 'Staff', -- Can be 'Staff' or 'Admin'
+                        Role VARCHAR(5) CHECK(Role IN ('staff','admin')), -- Can be 'Staff' or 'Admin'
                         Join_Date DATE DEFAULT CURRENT_DATE,
                         Password VARCHAR(255) NOT NULL -- Store hashed passwords
                     );                   
@@ -101,8 +103,8 @@ def create_tables():
                         Member_ID INT,
                         Foreign key (Member_ID) REFERENCES Members(Member_ID) ON DELETE CASCADE,
                         Issued_Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        Due_Date TIMESTAMP NOT NULL,
-                        Status VARCHAR(50) DEFAULT 'Issued',
+                        Due_Date TIMESTAMP GENERATED ALWAYS AS (Issued_Date + INTERVAL '15 days') STORED,
+                        Status VARCHAR(50) check(Status in ('issued','Returned','expired')),
                         Staff_ID INT,
                         Foreign key (Staff_ID) REFERENCES Staff(Staff_ID) ON DELETE SET NULL
                     );
@@ -130,7 +132,7 @@ def create_tables():
                         Member_ID INT,
                         Foreign key (Member_ID) REFERENCES Members(Member_ID) ON DELETE CASCADE,
                         Reservation_Date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        Status VARCHAR(50) DEFAULT 'Pending'
+                        Status VARCHAR(50) DEFAULT 'Pending' check(Status in ('Returned','Pending','issued'))
                     );
                 """) 
                 conn.commit()          
@@ -1141,7 +1143,7 @@ def issue_books(copy_id,member_id,status,handled_by):
     if conn:
         try:
             with conn.cursor() as cur:
-                cur.execute("""INSERT INTO Issued (Copy_ID, Member_ID, Issued_Date, Due_Date, Status, Staff_ID)
+                cur.execute("""INSERT INTO Issued (Copy_ID, Member_ID,Status,Staff_ID)
                     VALUES 
                     (%s, %s, %s, %s) Returning issued_id;
                 """,(copy_id,member_id,status,handled_by))

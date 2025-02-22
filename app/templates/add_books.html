@@ -10,6 +10,17 @@
    
 </head>
 <body>
+
+    <button style="position: absolute; top: 40px; right: 40px;">
+        <a href="{% if role|lower == 'member' %}/members_dashboard
+        {% elif role|lower== 'staff' %}/staff_dashboard
+        {% elif role|lower == 'admin' %}/admin_dashboard
+        {% else %}/
+        {% endif %}" class="back-button">
+            Go Back
+        </a>
+    </button>
+    
     <div class="form-container">
         <h1>Add a New Book</h1>
         <form id="bookForm" method="POST" action="{{ url_for('main.add_book') }}" enctype="multipart/form-data">
@@ -109,6 +120,6 @@
         });
     });
     </script>
-    
+
 </body>
 </html>

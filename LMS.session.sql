@@ -432,6 +432,7 @@ WHERE conrelid = 'books_copies'::regclass
   AND contype = 'c';
 
 
+select *from books_copies;
 
 WITH constraint_values AS (
   SELECT substring(pg_get_constraintdef(oid)
@@ -445,3 +446,46 @@ SELECT unnest(string_to_array(
          replace(values_str, '''', ''), ','
        )) AS valid_status
 FROM constraint_values;
+
+
+
+WITH status_constraint AS (
+  SELECT pg_get_constraintdef(oid) AS def
+  FROM pg_constraint
+  WHERE conrelid = 'Books_Copies'::regclass
+    AND contype = 'c'
+    AND pg_get_constraintdef(oid) LIKE '%status in%'
+)
+SELECT unnest(
+         string_to_array(
+           replace(substring(def FROM 'in \((.*)\)'), '''', ''), ','
+         )
+       ) AS valid_status
+FROM status_constraint;
+
+
+
+WITH status_constraint AS (
+  SELECT pg_get_constraintdef(oid) AS def
+  FROM pg_constraint
+  WHERE conrelid = 'Books_Copies'::regclass
+    AND contype = 'c'
+    AND pg_get_constraintdef(oid) ILIKE '%status%'
+),
+extracted AS (
+  SELECT substring(def FROM 'ARRAY\[(.*)\]') AS array_contents
+  FROM status_constraint
+),
+split_vals AS (
+  SELECT unnest(string_to_array(array_contents, ',')) AS element
+  FROM extracted
+)
+SELECT trim(both ' ' FROM replace(split_part(element, '::', 1), '''', '')) AS valid_status
+FROM split_vals;
+
+
+
+delete *from issued;
+delete from reservations;
+delete from books_copies;
+delete from books;

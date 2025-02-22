@@ -9,10 +9,21 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
+    <header>
+        <button style="float: right;">
+            <a href="{% if role|lower == 'member' %}/members_dashboard
+            {% elif role|lower== 'staff' %}/staff_dashboard
+            {% elif role|lower == 'admin' %}/admin_dashboard
+            {% else %}/
+            {% endif %}" class="back-button">
+                Go Back
+            </a>
+        </button> 
+    </header>
     <h1 style="text-align: center;">Genres List</h1>
     <!-- Search Bar -->
     <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Search Members..." onkeyup="filterTable()">
+        <input type="text" id="searchInput" placeholder="Search Genres..." onkeyup="filterTable()">
     </div>
     <table id="dataTable">
         <thead>

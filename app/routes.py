@@ -136,9 +136,9 @@ def set_role():
     session["role"] = data["role"]
     
     # Redirect based on role
-    if data["role"] == "member":
+    if data["role"].lower() == "member":
         return jsonify({"redirect": url_for('main.members_dashboard')})
-    elif data["role"] == "admin":
+    elif data["role"].lower() == "admin":
         return jsonify({"redirect": url_for('main.admin_dashboard')})
     else:  # Default for Staff or others
         return jsonify({"redirect": url_for('main.staff_dashboard')})
@@ -229,7 +229,7 @@ def add_book():
                 return jsonify({"success": True, "message": "Book Added Successfully!", "redirect_url": url_for('main.admin_dashboard')})
             else:
                 return jsonify({"success": True, "message": "Book Added Successfully!", "redirect_url": url_for('main.staff_dashboard')})
-    return render_template('add_books.html')
+    return render_template('add_books.html',role= session["role"])
 
 
 # @main.route('/add_genere',methods=['POST'])
@@ -241,7 +241,7 @@ def all_members_reservations():
     reservations=get_all_reservations()
     print("The reservations are:")
     print(reservations)
-    return render_template('all_reservations_for_staff.html',reservations=reservations)
+    return render_template('all_reservations_for_staff.html',reservations=reservations,role= session["role"])
 
 
 
@@ -285,7 +285,7 @@ def view_books():
         
         print(f"\n{books[i]}\n")
     print(f"\n\n\n\n\n\n\n\{books}")
-    return render_template('view_books.html', books=books)
+    return render_template('view_books.html', books=books,role= session["role"])
 
 @main.route('/get_books',methods=['GET'])
 def get_books():
@@ -355,7 +355,7 @@ def cancel_reserve():
         delete_reservation_by_id(reserve_ids)
         print(copy_id)
         update_book_copies(copy_id,'Available')
-        return jsonify({'status': 'success', 'message': 'Reservation cancelled successfully'})
+        return jsonify({'status': 'success', 'message': 'Reservation cancelled successfully'},role= session["role"])
 
 
 @main.route('/book/<int:book_id>')
@@ -399,13 +399,13 @@ def book_details(book_id):
 def fines():
     fines_history=get_all_fines_history()
     print(f"the fines is {fines_history}")
-    return render_template('all_fines_history.html',fines_history=fines_history)
+    return render_template('all_fines_history.html',fines_history=fines_history,role= session["role"])
 
 @main.route('/Members')
 def view_members():
     members=get_members()
     print(members)
-    return render_template('view_members.html',books=members)
+    return render_template('view_members.html',books=members,role= session["role"])
 
 @main.route('/Staffs')
 def view_staffs():
@@ -420,7 +420,7 @@ def admin_dashboard():
         flash("Please log in first!", "error")
         return redirect(url_for("main.login"))
     
-    return render_template("admin_dashboard.html", user_name=session["user_name"])
+    return render_template("admin_dashboard.html", user_name=session["user_name"],role= session["role"])
 
 @main.route('/staff_dashboard')
 def staff_dashboard():
@@ -429,7 +429,7 @@ def staff_dashboard():
         flash("Please log in first!", "error")
         return redirect(url_for("main.login"))
     
-    return render_template("staff_dashboard.html", user_name=session["user_name"])
+    return render_template("staff_dashboard.html", user_name=session["user_name"],role= session["role"])
 
 
 @main.route('/filter_books', methods=['POST'])
@@ -470,7 +470,7 @@ def filter_books_route():
 @main.route('/issued_books')
 def issued_books():
     issued_books=get_all_issued_books()
-    return render_template('all_issued_books.html',issued_books=issued_books)
+    return render_template('all_issued_books.html',issued_books=issued_books,role= session["role"])
 
 @main.route('/genres')
 def get_genre():
@@ -486,13 +486,13 @@ def members_dashboard():
     if "user_name" not in session:
         flash("Please log in first!", "error")
         return redirect(url_for("main.login"))
-    return render_template("members_dashboard.html", user_name=session["user_name"])
+    return render_template("members_dashboard.html", user_name=session["user_name"],role= session["role"])
 
 @main.route('/members_fines')
 def members_fines():
     email=session["email"]
     fines_history=get_members_fines_history_by_email(email)
-    return render_template('all_fines_history.html',fines_history=fines_history)
+    return render_template('all_fines_history.html',fines_history=fines_history,role= session["role"])
 
 
 @main.route('/members_reservations')
@@ -501,7 +501,7 @@ def members_reservations():
     reservations=get_members_reservations_by_email(email)
     print("The reservations are:")
     print(reservations)
-    return render_template('all_reservations.html',reservations=reservations)
+    return render_template('all_reservations.html',reservations=reservations,role= session["role"])
 
 
 @main.route('/members_issued_books')
@@ -509,7 +509,7 @@ def members_issued_books():
     email=session["email"]
     print(email)
     issued_books=get_issued_books_by_Email(email)
-    return render_template('all_issued_books.html',issued_books=issued_books)
+    return render_template('all_issued_books.html',issued_books=issued_books,role= session["role"])
 
 
 
@@ -548,7 +548,7 @@ def Issue_book_by_staff():
     if session["role"]!='member':
         staff_id=get_staff_id_by_email(session["email"])
         print(f"got the staff id which is {staff_id} and now insrting into issued books table")
-        issued_booksss=issue_books(copy_id=copy_id,member_id=member_id,status='Issued',handled_by=staff_id)
+        issued_booksss=issue_books(copy_id=copy_id,member_id=member_id,status='issued',handled_by=staff_id)
         print(f"the issued book is {issued_booksss}")
         if issued_booksss=='success':
             reserve_status='issued'
@@ -604,32 +604,32 @@ def add_books_copies():
         return jsonify({"success": success})
 
     books = get_all_books()
-    return render_template('add_books_copies.html', books=books)
+    return render_template('add_books_copies.html', books=books,role= session["role"])
 
 @main.route('/view_books')
 def view_books_latter():
     # Replace this with a database query to fetch books
     books =get_all_books()
-    return render_template('view_books_latter.html', books=books)
+    return render_template('view_books_latter.html', books=books,role= session["role"])
 
 
 @main.route('/view_books_copies')
 def view_books_copies():
     # Replace this with a database query to fetch books
     books =get_all_books_copies()
-    return render_template('view_books_copies.html', books=books)
+    return render_template('view_books_copies.html', books=books,role= session["role"])
 
 @main.route('/view_genres')
 def view_genres():
     # Replace this with a database query to fetch books
     genres =get_all_genres()
-    return render_template('view_genres.html', books=genres)
+    return render_template('view_genres.html', books=genres,role= session["role"])
 
 @main.route('/view_authors')
 def view_authors():
     # Replace this with a database query to fetch books
     authors =get_all_authors()
-    return render_template('view_authors.html', books=authors)
+    return render_template('view_authors.html', books=authors,role= session["role"])
 
 
 @main.route('/Views')
@@ -637,7 +637,7 @@ def Views():
     if "user_name" not in session:
         flash("please log in first!!","error")
         return redirect(url_for('main.login'))
-    return render_template('views.html')
+    return render_template('views.html',role= session["role"])
 
 @main.route('/get_columns')
 def get_columns():
@@ -677,7 +677,7 @@ def edit_form_page():
     table = request.args.get("table", "")
     record_id = request.args.get("id", "")
     # Renders the edit_forms.html template.
-    return render_template('edit_forms.html', table=table, record_id=record_id)
+    return render_template('edit_forms.html', table=table, record_id=record_id,role= session["role"])
 
 
 @main.route('/delete', methods=['POST'])
