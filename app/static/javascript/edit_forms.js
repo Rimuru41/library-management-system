@@ -12,58 +12,68 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
     }
 
-    // Fetch columns and constraints from backend
+    // Fetch columns, constraints, and foreign keys from backend
     fetch(`/get_columns?table=${table}&id=${recordId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: data.error,
-                });
-                return;
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error,
+            });
+            return;
+        }
+
+        let formFields = document.getElementById("form-fields");
+        formFields.innerHTML = "";
+
+        let foreignKeys = data.foreign_keys || [];  // Get foreign key columns
+
+        data.columns.forEach(column => {
+            // Skip foreign key columns
+            if (foreignKeys.includes(column)) {
+                return;  
             }
 
-            let formFields = document.getElementById("form-fields");
-            formFields.innerHTML = "";
+            let inputGroup = document.createElement("div");
+            inputGroup.classList.add("input-group");
 
-            data.columns.forEach(column => {
-                let inputGroup = document.createElement("div");
-                inputGroup.classList.add("input-group");
+            let label = document.createElement("label");
+            label.textContent = column;
+            label.setAttribute("for", column);
 
-                let label = document.createElement("label");
-                label.textContent = column;
-                label.setAttribute("for", column);
+            if (data.constraints && data.constraints[column]) {
+                // If column has constraints, create a dropdown
+                let select = document.createElement("select");
+                select.setAttribute("name", column);
+                select.setAttribute("id", column);
 
-                let inputElement;
-
-                if (data.constraints && data.constraints[column]) {
-                    // If column has predefined values, create a select dropdown
-                    inputElement = document.createElement("select");
-                    inputElement.setAttribute("name", column);
-                    inputElement.setAttribute("id", column);
-
-                    data.constraints[column].forEach(value => {
-                        let option = document.createElement("option");
-                        option.value = value;
-                        option.textContent = value;
-                        inputElement.appendChild(option);
-                    });
-                } else {
-                    // Default to text input if no constraints are found
-                    inputElement = document.createElement("input");
-                    inputElement.setAttribute("type", "text");
-                    inputElement.setAttribute("name", column);
-                    inputElement.setAttribute("id", column);
-                }
+                data.constraints[column].forEach(value => {
+                    let option = document.createElement("option");
+                    option.value = value;
+                    option.textContent = value;
+                    select.appendChild(option);
+                });
 
                 inputGroup.appendChild(label);
-                inputGroup.appendChild(inputElement);
-                formFields.appendChild(inputGroup);
-            });
-        })
-        .catch(error => console.error("Error fetching columns:", error));
+                inputGroup.appendChild(select);
+            } else {
+                // Otherwise, create a regular input field
+                let input = document.createElement("input");
+                input.setAttribute("type", "text");
+                input.setAttribute("name", column);
+                input.setAttribute("id", column);
+
+                inputGroup.appendChild(label);
+                inputGroup.appendChild(input);
+            }
+
+            formFields.appendChild(inputGroup);
+        });
+    })
+    .catch(error => console.error("Error fetching columns:", error));
+
 
     // Handle form submission
     document.getElementById("edit-form").addEventListener("submit", function(event) {
@@ -87,7 +97,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     text: data.success,
                     confirmButtonText: 'OK'
                 }).then(() => {
-                    window.location.href = data.redirect_url;  // Redirect back to main page
+                    window.location.href = data.redirect_url;
                 });
             } else {
                 Swal.fire({

@@ -26,6 +26,8 @@ h1 {
 label {
     display: block;
     font-weight: bold;
+    text-transform: capitalize;
+
 }
 
 input {
@@ -48,3 +50,29 @@ input {
 .btn:hover {
     background-color: #218838;
 }
+/* Improve dropdown appearance */
+select {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+/* Add hover and focus effects */
+select:hover, select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Style the dropdown options */
+select option {
+    background: #fff;
+    color: #333;
+    padding: 10px;
+}
+

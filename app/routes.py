@@ -646,12 +646,21 @@ def get_columns():
 
     if not table or not record_id:
         return jsonify({'error': 'Missing table or ID'}), 400
-    columns=get_columns_from_table(table,record_id) #getting columns from table
-    print(f"The columns are {columns} from {table} and going to extract from {record_id}")
-    column_names = columns.get('columns', [])  # Returns the list of column names safely
-    constraints_list=columns.get('check_constraints',[])
-    # Now sending this tuple for form submission which is dynamic
-    return jsonify({'columns': column_names, 'table': table, 'id': record_id,'constraints':constraints_list})
+
+    columns = get_columns_from_table(table, record_id)  # Getting columns from table
+    print(f"The columns are {columns} from {table} and extracting for {record_id}")
+
+    column_names = columns.get('columns', [])  # List of column names
+    constraints_list = columns.get('check_constraints', {})  # Dictionary of constraints
+    foreign_keys = columns.get('foreign_keys', [])  # List of foreign key columns
+
+    return jsonify({
+        'columns': column_names,
+        'table': table,
+        'id': record_id,
+        'constraints': constraints_list,
+        'foreign_keys': foreign_keys
+    })
 
 @main.route('/edit_tables', methods=['POST'])
 def edit_tables():

@@ -1226,10 +1226,12 @@ def edits_table(table,id):
             conn.close()
 
 
+import re
+
 def get_columns_from_table(table, primary_key):
     """
-    Retrieves CHECK constraints and all column names except the primary key for a given table.
-    
+    Retrieves CHECK constraints, all column names (except primary key), and foreign keys for a given table.
+
     Parameters:
       table (str): The table name.
       primary_key (str): The primary key column name.
@@ -1238,6 +1240,7 @@ def get_columns_from_table(table, primary_key):
       dict: A dictionary with:
           - 'check_constraints': {column_name: [valid_values]}  (CHECK constraints)
           - 'columns': [list of all column names except primary key]
+          - 'foreign_keys': [list of foreign key columns]
     """
     conn = get_db_connection()
     if conn:
@@ -1247,7 +1250,7 @@ def get_columns_from_table(table, primary_key):
                 cur.execute("""
                     SELECT column_name FROM information_schema.columns 
                     WHERE table_name = %s AND ordinal_position > 1;
-                """, (table,))
+                """, (table, ))
                 columns = [row[0] for row in cur.fetchall()]
 
                 # Query for CHECK constraints
@@ -1267,19 +1270,31 @@ def get_columns_from_table(table, primary_key):
                     matches = re.findall(r"'([^']*)'", check_clause)
                     if matches:
                         check_constraints[column_name] = matches
-                
+
+                # Query for foreign keys
+                cur.execute("""
+                    SELECT kcu.column_name
+                    FROM information_schema.table_constraints tc
+                    JOIN information_schema.key_column_usage kcu 
+                        ON tc.constraint_name = kcu.constraint_name
+                    WHERE tc.table_name = %s AND tc.constraint_type = 'FOREIGN KEY';
+                """, (table,))
+                foreign_keys = [row[0] for row in cur.fetchall()]
+
                 result = {
                     'check_constraints': check_constraints,
-                    'columns': columns
+                    'columns': columns,
+                    'foreign_keys': foreign_keys
                 }
 
-                print(f"Constraints and columns for table {table}: {result}")
+                print(f"Constraints, columns, and foreign keys for table {table}: {result}")
                 return result
 
         except Exception as e:
-            print(f"Error while getting constraints and columns for table {table}: {e}")
+            print(f"Error while getting constraints, columns, and foreign keys for table {table}: {e}")
         finally:
             conn.close()
+
 
 # def get_columns_from_table(table):
 #     conn=get_db_connection()
