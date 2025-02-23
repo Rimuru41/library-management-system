@@ -49,3 +49,48 @@ function handleDelete(button) {
         }
     });
 }
+
+
+function handleCopy(button) {
+    const table = button.getAttribute("data-table");
+    const recordId = button.getAttribute("data-id");
+    const data = { table, recordId };
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you want to make this member staff?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, make it!',
+        cancelButtonText: 'No, cancel'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            // Optionally update the button text to indicate progress
+            button.textContent = 'Removing...';
+
+            try {
+                const response = await fetch('/make_member_staff', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const responseData = await response.json();
+
+                if (responseData.success) {
+                    // Show success message then refresh the page
+                    Swal.fire('Success!', responseData.message, 'success')
+                        .then(() => window.location.reload());
+                } else {
+                    Swal.fire('Error!', responseData.message, 'error');
+                    button.textContent = 'Staff';
+                }
+            } catch (error) {
+                Swal.fire('Error!', error.message, 'error');
+                button.textContent = 'Make Copy';
+            }
+        }
+    });
+}

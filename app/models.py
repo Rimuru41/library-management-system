@@ -1510,8 +1510,9 @@ def update_fines_status(fine_id,status):
         try:
             with conn.cursor() as cur:
                 cur.execute("""
-                    update fines set paid_status = %s where fine_id = %s;
-
+                        UPDATE fines 
+                        SET paid_status = %s, payment_date = NOW()
+                        WHERE fine_id = %s;
                             """,(status,fine_id))
                 conn.commit()
                 print('Successful')
@@ -1521,3 +1522,68 @@ def update_fines_status(fine_id,status):
             print(f"the error while updating the fines table is {e}")
         finally:
             conn.close()
+
+
+
+def make_member_to_staff(Member_id,Member_Name,Email,Phone_Number,Address,hashed_password,Join_Date,):
+
+    print("now in member_to_staff function!!")
+    roles='staff'
+    conn = get_db_connection()
+    if not conn:
+        return 'db_error'
+    print("established connection")
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                    INSERT INTO staff (staff_name,Email,Phone_Number,Address,Join_Date,password,role)
+                    VALUES (%s, %s, %s, %s, %s,%s,%s);
+            """, (Member_Name,Email,Phone_Number,Address,Join_Date,hashed_password,roles))
+            conn.commit()
+            return 'success'
+    except Exception as e:
+        conn.rollback()
+        print(f"Error registering member: {e}")
+    finally:
+        conn.close()
+
+
+def get_member_information_from_member_id(member_id):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("""
+                Select *from members where member_id =%s;            
+                """,(member_id,))
+                results=cur.fetchone()
+
+                print(results)
+                if results:
+                    return results
+                return []
+        except Exception as e:
+            conn.rollback()
+            print(f"The error while upgrading is {e}")
+        finally:
+            conn.close()
+
+def check_is_staff(member_id):
+    conn=get_db_connection()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                print('entereing checking staff')
+                cur.execute("""
+                Select staff_id from staff where email ILIKE %s;            
+                """,(member_id,))
+                results=cur.fetchone()
+                if results:
+                    print('success')
+                    return 'success'
+                print('failure')
+                return 'failure'
+        except Exception as e:
+            print(f"The error while checking staff is {e}")
+        finally:
+            conn.close()            

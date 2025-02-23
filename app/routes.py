@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for,jsonify,flash,session,current_app
-from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies,get_member_reservations,get_book_id_from_copy_ids,issue_books,get_staff_id_by_email,update_reservations_for_issued,Update_issued_books,add_book_copy,get_staffs,get_all_books_copies,get_all_genres,get_all_authors,get_columns_from_table,update_tables,delete_information_from_table,check_and_apply_fines,check_and_apply_reservations,get_isbn_from_book_id,update_fines_status
+from .models import add_book as add_book_to_db,get_all_books ,add_author,add_genre,check_author,check_genre,filter_books,register_members,login_member,fetch_genres,create_tables,get_members,check_member,get_members_name_by_email,get_all_reservations,get_all_fines_history,get_all_issued_books,get_members_fines_history_by_email,get_members_reservations_by_email,get_issued_books_by_Email,get_book_id,count_copies,register_staff,add_to_copies,get_copy_id_from_book_id,get_member_id_by_email,reserve_book,check_reserve_by_member_id,delete_reservation_by_id,get_copy_id_from_book_id_for_reservation,update_book_copies,get_member_reservations,get_book_id_from_copy_ids,issue_books,get_staff_id_by_email,update_reservations_for_issued,Update_issued_books,add_book_copy,get_staffs,get_all_books_copies,get_all_genres,get_all_authors,get_columns_from_table,update_tables,delete_information_from_table,check_and_apply_fines,check_and_apply_reservations,get_isbn_from_book_id,update_fines_status,make_member_to_staff,get_member_information_from_member_id
 import os 
 import bcrypt
 from .images import generate_filename_with_isbn,create_default_cover,resize_image
@@ -639,6 +639,15 @@ def Views():
         return redirect(url_for('main.login'))
     return render_template('views.html',role= session["role"])
 
+@main.route('/staff_Views')
+def staff_Views():
+    if "user_name" not in session:
+        flash("please lkushinaog in first!!","error")
+        return redirect(url_for('main.login'))
+    return render_template('staff_view.html',role= session["role"])
+
+
+
 @main.route('/get_columns')
 def get_columns():
     table = request.args.get('table')
@@ -716,6 +725,8 @@ def delete_contents():
     if not infomation:
         return jsonify({'error': 'Missing data'}), 400
     
+    
+
     results=delete_information_from_table(updated_values=infomation)
     redirect_url = "/Views" if session.get("role") != "member" else "/"
 
@@ -724,6 +735,33 @@ def delete_contents():
     else:
         return jsonify({'error':'Some Error encountered!!!'})
     
+
+@main.route('/make_member_staff', methods=['POST'])
+def make_member_staff():
+    infomation = request.get_json()
+    
+    print(f"in the make member to staff  endpoint The information are {infomation}")
+    if not infomation:
+        return jsonify({'error': 'Missing data'}), 400
+    
+    print(f"Type of infomation: {type(infomation)}")
+
+    record_id=infomation["recordId"]
+    members_information=get_member_information_from_member_id(record_id)
+    print(f"Type of members_information: {type(members_information)}")
+    
+
+    if not members_information:
+        return jsonify({'error':'Some Error encountered!!!'})
+    results=make_member_to_staff(*members_information)
+    print(f"Type of results: {type(results)}")
+
+    redirect_url = "/Views" if session.get("role") != "member" else "/"
+
+    if results=='success':
+        return jsonify({'success':'Made into Staff Successfully !','redirect_url':redirect_url})
+    else:
+        return jsonify({'error':'Some Error encountered!!!'})
 # @main.route('/check_fines')
 # def check_fines():
 #     overdue_books=check_and_apply_fines()
