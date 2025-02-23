@@ -9,7 +9,7 @@ class Config:
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
     # Database Configuration
-    DATABASE_URI = os.environ.get('DATABASE_URI', 'postgresql://username:password@localhost/library_management_system')
+    DATABASE_URI = os.environ.get('DATABASE_URI', 'postgresql://library_management_system_wjn9_user:frSKvA4ATQFo8vMDzGvczAZDfPkCD9Tu@dpg-cut84m5umphs73cg9se0-a.oregon-postgres.render.com/library_management_system_wjn9')
 
     # Debug and Testing (Explicit boolean handling)
     DEBUG = os.environ.get('FLASK_DEBUG', 'True').lower() in ['true', '1', 'yes']
@@ -27,4 +27,6 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     DEBUG = True
-    DATABASE_URI = 'postgresql://postgres@localhost/library_management_system'  # Use a separate test DB
+    DATABASE_URI = 'postgresql://library_management_system_wjn9_user:frSKvA4ATQFo8vMDzGvczAZDfPkCD9Tu@dpg-cut84m5umphs73cg9se0-a.oregon-postgres.render.com/library_management_system_wjn9'
+
+

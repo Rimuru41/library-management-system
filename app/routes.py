@@ -390,7 +390,7 @@ def book_details(book_id):
             "Copies": books[7]
 
         }
-        print(f"The image file name is {books[5]} and the role id is {session["role"]}")
+        print(f"The image file name is {books[5]} ")
         return render_template('individual_books.html',book=book_data,role=session["role"])
     else:
         return "Book not found", 404

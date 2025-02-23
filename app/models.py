@@ -8,10 +8,10 @@ from datetime import datetime, timedelta
 
 # Database connection details
 DB_CONFIG = {
-    'dbname': 'library_management_system',
-    'user': 'postgres',
-    'password': 'Tensura',
-    'host': 'localhost',
+    'dbname': 'library_management_system_wjn9',
+    'user': 'library_management_system_wjn9_user',
+    'password': 'frSKvA4ATQFo8vMDzGvczAZDfPkCD9Tu',
+    'host': 'dpg-cut84m5umphs73cg9se0-a.oregon-postgres.render.com',
     'port': '5432'
 }
 

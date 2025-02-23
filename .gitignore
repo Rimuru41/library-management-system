@@ -6,6 +6,29 @@ env/
 *.pyc
 __pycache__/
 
-#Ignore .Vscode
+# Ignore .Vscode
 .vscode/
 
+# Specific ignored files
+hashed.py
+resize.py
+LMS.session.sql
+tuple_checking.py
+Responsibilities.txt
+Library Management System.pdf
+Information about LMS
+checking append.py
+ER Diagram.png
+download.jpeg
+background.webp
+background.webp
+*.ipynb
+app/*.ipynb
+app/run.py
+
+# Un-ignore specific notebook
+app/Untitled-1.ipynb
+
+"Hosted link.txt"
+
+greatescapewoodlandsnursinghome.jpg
