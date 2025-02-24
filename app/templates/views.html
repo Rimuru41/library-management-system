@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Views</title>
+    <link rel="stylesheet" href="/static/CSS/views.css"> <!-- Link to external CSS file -->
+</head>
+<body>
+
+
+    <div class="container">
+        <h1>Explore the Library</h1>
+        <div class="grid">
+            <div class="view-card" onclick="window.location.href='/view_books'">
+                <i class="fas fa-book"></i>
+                <h3>Books</h3>
+            </div>
+            <div class="view-card" onclick="window.location.href='/view_books_copies'">
+                <i class="fas fa-copy"></i>
+                <h3>Book Copies</h3>
+            </div>
+            <div class="view-card" onclick="window.location.href='/view_genres'">
+                <i class="fas fa-th"></i>
+                <h3>Genres</h3>
+            </div>
+            <div class="view-card" onclick="window.location.href='/view_authors'">
+                <i class="fas fa-user-edit"></i>
+                <h3>Authors</h3>
+            </div>
+            <div class="view-card" onclick="window.location.href='/Members'">
+                <i class="fas fa-users"></i>
+                <h3>Members</h3>
+            </div>
+            <div class="view-card" onclick="window.location.href='/Staffs'">
+                <i class="fas fa-user-tie"></i>
+                <h3>Staff</h3>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

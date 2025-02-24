@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Books</title>
+    <link rel="stylesheet" href="/static/CSS/tables.css"> <!-- Link to external CSS file -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+</head>
+<body>
+    <header>
+        <button style="float: right;">
+            <a href="{% if role|lower == 'member' %}/members_dashboard
+            {% elif role|lower== 'staff' %}/staff_dashboard
+            {% elif role|lower == 'admin' %}/admin_dashboard
+            {% else %}/
+            {% endif %}" class="back-button">
+                Go Back
+            </a>
+        </button> 
+    </header>
+    <h1 style="text-align: center;">Book List</h1>
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search Books..." onkeyup="filterTable()">
+    </div>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Book Name</th>
+                <th>Author</th>
+                <th>Genre</th>
+                <th>Publication Date</th>
+                <th>Pages</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td><a href="/book/{{ book[5] }}">{{ book[0] }}</a></td>
+                <td>{{ book[1] }}</td>
+                <td>{{ book[2] }}</td>
+                <td>{{ book[3] }}</td>
+                <td>{{ book[4] }}</td>
+                <td>
+                    <button class="reserve-btn" data-book-id="{{ book[5] }}" onclick="handleReservation(this)">{{book[6]}}</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Your Reservation Handler Script -->
+    <script src="/static/javascript/reservations.js"></script> <!-- This should be last -->
+    <script src="/static/javascript/search.js"></script>
+
+</body>
+</html>

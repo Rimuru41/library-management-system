@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Record</title>
+    <link rel="stylesheet" href="/static/CSS/edit_forms.css">
+    <script defer src="/static/javascript/edit_forms.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+    <header>
+        <button style="float: right;">
+            <a href="{% if role|lower == 'member' %}/members_dashboard
+            {% elif role|lower== 'staff' %}/staff_dashboard
+            {% elif role|lower == 'admin' %}/admin_dashboard
+            {% else %}/
+            {% endif %}" class="back-button">
+                Go Back
+            </a>
+        </button> 
+    </header>
+    <div class="container">
+        <h1>Edit {{ table }} </h1>
+        <form id="edit-form" enctype="multipart/form-data">
+            <div id="form-fields"></div> <!-- Form fields will be dynamically generated here -->
+            <button type="submit" class="btn">Save Changes</button>
+        </form>
+    </div>
+
+    
+</body>
+</html>

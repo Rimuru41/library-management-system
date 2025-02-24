@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View reservations</title>
+    <link rel="stylesheet" href="/static/CSS/tables.css"> <!-- Link to external CSS file -->
+
+</head>
+<body>
+    <header>
+        <button style="float: right;">
+            <a href="{% if role|lower == 'member' %}/members_dashboard
+            {% elif role|lower== 'staff' %}/staff_dashboard
+            {% elif role|lower == 'admin' %}/admin_dashboard
+            {% else %}/
+            {% endif %}" class="back-button">
+                Go Back
+            </a>
+        </button> 
+    </header>
+    <h1 style="text-align: center;">Reservations List</h1>
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search Reservations..." onkeyup="filterTable()">
+    </div>
+    <table id="dataTable"
+        <thead>
+            <tr>
+                <th>Reserve Id</th>
+                <th>Name</th>
+                <th>Books</th>
+                <th>Date</th>
+                <th>Status</th>
+  
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in reservations %}
+            <tr>
+                <td>{{ reservation[4] }}</td>
+                <td>{{ reservation[0] }}</td>
+                <td>{{ reservation[1] }}</td>
+                <td>{{ reservation[2] }}</td>
+                <td>{{ reservation[3] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script src="/static/search.js"></script>
+
+</body>
+</html>

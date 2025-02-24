@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Book</title>
+    <link rel="stylesheet" href="/static/CSS/add_book.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+   
+</head>
+<body>
+
+    <button style="position: absolute; top: 40px; right: 40px;">
+        <a href="{% if role|lower == 'member' %}/members_dashboard
+        {% elif role|lower== 'staff' %}/staff_dashboard
+        {% elif role|lower == 'admin' %}/admin_dashboard
+        {% else %}/
+        {% endif %}" class="back-button">
+            Go Back
+        </a>
+    </button>
+    
+    <div class="form-container">
+        <h1>Add a New Book</h1>
+        <form id="bookForm" method="POST" action="{{ url_for('main.add_book') }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="Book_Name">Book Name</label>
+                <input type="text" id="Book_Name" name="Book_Name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Author">Author</label>
+                <input type="text" id="Author" name="Author" required>
+            </div>
+
+            <div class="form-group">
+                <label for="BirthDate">Author's Birth Date</label>
+                <input type="date" id="BirthDate" name="BirthDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Email">Email</label>
+                <input type="email" id="Email" name="Email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Genre">Genre</label>
+                <input type="text" id="Genre" name="Genre" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Pages">Pages</label>
+                <input type="number" id="Pages" name="Pages" required min="1">
+            </div>
+
+            <div class="form-group">
+                <label for="Publication_Year">Publication Year</label>
+                <input type="date" id="Publication_Year" name="Publication_Year" required>
+            </div>
+
+
+            <!-- <div class="form-group">
+
+                <label for="Phone_Number">Phone Number:</label>
+                <input type="text" id="Phone_Number" name="Phone_Number" 
+                maxlength="10" pattern="\d{10}" 
+                title="Enter exactly 10 digits" 
+                required oninput="this.value = this.value.replace(/\D/g, '').slice(0, 10);">
+            </div> -->
+
+            <div class="form-group">
+                <label for="ISBN">ISBN:</label>
+                <input type="text" id="ISBN" name="ISBN" 
+                maxlength="13" pattern="\d{13}" 
+                title="Enter exactly 13 digits" 
+                required oninput="this.value = this.value.replace(/\D/g, '').slice(0, 13);">
+            </div>
+
+            <div class="form-group">
+                <label for="file">Book Cover Image:</label>
+                <input type="file" name="file" accept="image/*" ><br>
+            </div>
+
+            <div class="form-group">
+                <label for="Synopsis">Synopsis</label>
+                <input type="text" id="Synopsis" name="Synopsis" required>
+            </div>
+
+
+            <button type="submit">Add Book</button>
+        </form>
+    </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("bookForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent form submission
+            
+            let formData = new FormData(this);
+    
+            fetch("{{ url_for('main.add_book') }}", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: "Success",
+                        text: data.message,
+                        icon: "success",
+                        confirmButtonText: "OK"
+                    }).then(() => {
+                        window.location.href = data.redirect_url; // Redirect after alert
+                    });
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    });
+    </script>
+
+</body>
+</html>

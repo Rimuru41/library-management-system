@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Books</title>
+    <link rel="stylesheet" href="/static/CSS/tables.css"> <!-- Link to external CSS file -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <header>
+        <button style="float: right;">
+            <a href="{% if role|lower == 'member' %}/members_dashboard
+            {% elif role|lower== 'staff' %}/staff_dashboard
+            {% elif role|lower == 'admin' %}/admin_dashboard
+            {% else %}/
+            {% endif %}" class="back-button">
+                Go Back
+            </a>
+        </button> 
+    </header>
+    <h1 style="text-align: center;">Book List</h1>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search Books..." onkeyup="filterTable()">
+    </div>
+
+    <br>
+    <br>  
+    <br>  
+  
+    
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Book Name</th>
+                <th>Author</th>
+                <th>Genre</th>
+                <th>Publication Date</th>
+                <th>Pages</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>{{ book[0] }}</td>
+                <td>{{ book[1] }}</td>
+                <td>{{ book[2] }}</td>
+                <td>{{ book[3] }}</td>
+                <td>{{ book[4] }}</td>
+                <td>
+                    <button class="add-copy-btn" data-book-id="{{ book[5] }}" onclick="showModal(this)">Add Book Copy</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Add Book Copy</h2>
+            <form id="addBookCopyForm">
+                <label for="bookStatus">Book Status:</label>
+                <select id="bookStatus">
+                    <option value="Available">Available</option>
+                    <!-- <option value="Issued">Issued</option>
+                    <option value="Pending">Pending</option> -->
+                </select>
+
+                <label for="bookCondition">Book Condition:</label>
+                <select id="bookCondition">
+                    <option value="New">New</option>
+                    <option value="Old">Old</option>
+                </select>
+
+                <button type="submit">Add Copy</button>
+            </form>
+        </div>
+    </div>
+ 
+
+    <script src="/static/javascript/books_copies.js"></script> 
+    <script src="/static/javascript/search.js"></script>
+</body>
+</html>
