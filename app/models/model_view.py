@@ -10,7 +10,7 @@ def get_all_reservations():
             with conn.cursor() as cur:
                 cur.execute("""        
                     Select members.member_name,books.book_name,reservations.reservation_date,reservations.status,members.member_id,books_copies.copy_id,reservations.reservation_id 
-                    from reservations
+                    `f`rom reservations
                     inner join members On reservations.member_id=members.member_id
                     inner join books_copies On reservations.copy_id=books_copies.copy_id
                     inner join books on books.book_id=books_copies.book_id;

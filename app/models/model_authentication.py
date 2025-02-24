@@ -4,18 +4,14 @@ import psycopg2
 import bcrypt
 
 def register_members(Member_Name,Email,Phone_Number,Address,Join_Date,hashed_password):
-    print("now in rregister_member function!!")
     conn = get_db_connection()
     if not conn:
         return 'db_error'
-    print("established connection")
     try:
         with conn.cursor() as cur:
             # Check if the member already exists
-            print("Executing the task!!")
             cur.execute('SELECT member_id FROM members WHERE member_name = %s and email = %s', (Member_Name, Email))
             existing_member = cur.fetchone()
-            print("okay query done!!!")
             if existing_member:
                 return 'already_registered'
 
@@ -27,25 +23,20 @@ def register_members(Member_Name,Email,Phone_Number,Address,Join_Date,hashed_pas
             conn.commit()
             return 'success'
     except Exception as e:
-        print(f"Error registering member: {e}")
         return e
     finally:
         conn.close()
 
 def register_staff(Member_Name,Email,Phone_Number,Address,role,Join_Date,hashed_password):
-    print("now in rregister_staff function!!")
     conn = get_db_connection()
     roles=role.lower()
     if not conn:
         return 'db_error'
-    print("established connection")
     try:
         with conn.cursor() as cur:
             # Check if the member already exists
-            print("Executing the task in staff!!")
             cur.execute('SELECT staff_id FROM staff WHERE staff_name = %s and email = %s', (Member_Name, Email))
             existing_member = cur.fetchone()
-            print("okay query done!!!")
             if existing_member:
                 return 'already_registered'
 
@@ -57,7 +48,6 @@ def register_staff(Member_Name,Email,Phone_Number,Address,role,Join_Date,hashed_
             conn.commit()
             return 'success'
     except Exception as e:
-        print(f"Error registering member: {e}")
         return e
     finally:
         conn.close()
@@ -72,7 +62,6 @@ def login_member(Email,password):
             # Fetch the user from the database
                 cur.execute('SELECT member_name, password FROM members WHERE email ILIKE %s', (Email,))
                 user = cur.fetchone()
-                print(f"the content of the user from members table is {user}")
                 # if not user:
                 #     print("Notxx")
                 #     return 'Not Registered'
@@ -92,7 +81,7 @@ def login_member(Email,password):
                     return 'staff',staff[0],staff[1]
                 return 'Twin',staff[0],staff[1]            
         except Exception as e:
-             print(f"Error login: {e}")
+            return e
         finally:
             conn.close()
 
@@ -106,20 +95,14 @@ def login_staff(Email,password):
             # Fetch the user from the database
                 cur.execute('SELECT staff_name,role, password FROM staff WHERE email ILIKE %s', (Email,))
                 user = cur.fetchone()
-                print(f"the content of the user from staff is {user}")
                 if not user:
-                    print("Not")
                     return []
                 hashed_password=bytes.fromhex(user[2].replace('\\x', ''))
-                print(hashed_password)
                 # Verify the password
                 if not bcrypt.checkpw(password.encode('utf-8'), hashed_password):
-                   print("Not")
                    return []
-                print("Not")
                 return user[0],user[1]
         except Exception as e:
-             print(f"Error login in staff: {e}")
              return []
         finally:
 
