@@ -22,12 +22,7 @@ ER Diagram.png
 download.jpeg
 background.webp
 background.webp
-*.ipynb
-app/*.ipynb
-app/run.py
 
-# Un-ignore specific notebook
-app/Untitled-1.ipynb
 
 "Hosted link.txt"
 
