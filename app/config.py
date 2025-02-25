@@ -15,14 +15,6 @@ class Config:
     SESSION_COOKIE_NAME = 'library_session'
     UPLOAD_FOLDER = os.path.join('app','static', 'images', 'books')
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-    # Database Configuration
-    DATABASE_URI = os.environ.get('DATABASE_URI', 'postgresql://username:password@localhost/library_management_system')
-
-    # # Debug and Testing (Explicit boolean handling)
-    # DEBUG = os.environ.get('FLASK_DEBUG', 'True').lower() in ['true', '1', 'yes']
-    # TESTING = os.environ.get('FLASK_TESTING', 'False').lower() in ['true', '1', 'yes']
 
 class DevelopmentConfig(Config):
     DEBUG = True
@@ -36,4 +28,3 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     DEBUG = True
-    DATABASE_URI = 'postgresql://postgres@localhost/library_management_system'  # Use a separate test DB
