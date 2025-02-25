@@ -1,6 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 from werkzeug.utils import secure_filename
 from flask import current_app
+import textwrap
 
 
 def allowed_file(filename):
@@ -15,8 +16,6 @@ def resize_image(image_path, max_size=(600, 500)):
         print(f"Image resized to {img.size}")
 
 
-from PIL import Image, ImageDraw, ImageFont, ImageOps
-import textwrap
 
 def create_default_cover(book_name, file_path):
     width, height = 300, 450
@@ -38,7 +37,7 @@ def create_default_cover(book_name, file_path):
 
     # Wrap text to fit within the cover width
     max_width = width - (2 * padding)
-    wrapped_text = textwrap.fill(book_name, width=15)  # Adjust width for wrapping
+    wrapped_text = textwrap.fill(book_name, width=15)  
 
     # Reduce font size if text is too long
     while True:
@@ -46,12 +45,12 @@ def create_default_cover(book_name, file_path):
         text_width = bbox[2] - bbox[0]
         text_height = bbox[3] - bbox[1]
 
-        if text_width <= max_width and text_height <= (height / 3):  # Limit text height to upper third
-            break  # Font size is okay
+        if text_width <= max_width and text_height <= (height / 3):  
+            break  
 
         # Reduce font size
         font_size = font.size - 2
-        if font_size < 15:  # Prevent text from getting too small
+        if font_size < 15:  
             break
         font = ImageFont.truetype("Baskerville.ttf", font_size) if font.size > 15 else ImageFont.load_default()
 
@@ -76,7 +75,7 @@ def create_default_cover(book_name, file_path):
 
 def generate_filename_with_isbn(filename, isbn):
     """Generate a unique filename by appending ISBN to the original filename."""
-    secure_name = secure_filename(filename)  # Secure the original filename
-    name, ext = secure_name.rsplit('.', 1)  # Split name and extension
-    return f"{name}_{isbn}.{ext}"  # Append ISBN to the name part
+    secure_name = secure_filename(filename)  
+    name, ext = secure_name.rsplit('.', 1)  
+    return f"{name}_{isbn}.{ext}"  
 
