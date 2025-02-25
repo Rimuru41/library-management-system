@@ -1,0 +1,12 @@
+[33m09dd35b[m[33m ([m[1;36mHEAD[m[33m)[m HEAD@{0}: commit: Please be done
+[33ma3e614c[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{1}: pull --rebase origin main (start): checkout a3e614c4258a76b5fa653fea6082a6bc9663973e
+[33ma405401[m[33m ([m[1;32mmain[m[33m)[m HEAD@{2}: rebase (abort): returning to refs/heads/main
+[33m845863b[m HEAD@{3}: commit: final one
+[33ma3e614c[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{4}: pull --rebase origin main (start): checkout a3e614c4258a76b5fa653fea6082a6bc9663973e
+[33ma405401[m[33m ([m[1;32mmain[m[33m)[m HEAD@{5}: commit: final one
+[33m64ab44e[m HEAD@{6}: commit: Removed all ignored files from Git tracking
+[33m5c1fe7d[m HEAD@{7}: commit: Final
+[33m0124080[m HEAD@{8}: commit: Final
+[33m43ac50d[m HEAD@{9}: commit: Final
+[33m3e79c80[m HEAD@{10}: commit: Final
+[33mcfd676b[m HEAD@{11}: clone: from https://github.com/Rimuru41/library-management-system

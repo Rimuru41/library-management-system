@@ -19,7 +19,6 @@ def create_app(config_object=None):
 
     print("SECRET_KEY:", app.config.get('SECRET_KEY'))
     print(f"DEBUG mode: {app.config['DEBUG']}")  
-    print(f'Database URI: {app.config["DATABASE_URI"]}')
 
     # Register BlueprintsTestingConfig
     register_routes(app)
