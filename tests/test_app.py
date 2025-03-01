@@ -1,7 +1,6 @@
 import sys
 import os
 
-# Ensure the project root is in sys.path so Python can find the 'app' package
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import pytest
@@ -9,9 +8,8 @@ from app import create_app
 from app.models.model_authentication import login_member,register_members
 from app.models import get_db_connection
 from flask.testing import FlaskClient
-from app.config import TestingConfig  # Make sure TestingConfig is defined in your config module
+from app.config import TestingConfig 
 
-# Fixture for the Flask test client
 @pytest.fixture
 def client():
     app = create_app(TestingConfig)
@@ -44,8 +42,6 @@ def test_register_member():
 def test_login_member():
     """Test login function with a mock user."""
     result = login_member("test@example.com", "wrong_password")
-    # Adjust the assertion based on expected behavior.
-    # For instance, if not registered, you might expect 'Not Registered'
     assert result == 'Not Registered' or (isinstance(result, (list, tuple)) and result[0] in ['success', 'staff', 'Twin'])
 
 def test_database_connection():
